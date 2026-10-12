@@ -20,7 +20,7 @@ Camera and microphone need HTTPS (GitHub Pages is HTTPS) or `localhost`.
 
 ## The brain
 
-- Model: **SmolLM2-135M-Instruct**, 4-bit (about 80 MB), the smallest usable chat model.
+- Model: **SmolLM2-135M-Instruct** (official `HuggingFaceTB` repo), the smallest usable chat model. Download is about 118 MB (4-bit, on GPUs with fp16) or 137 MB (8-bit, on the CPU).
 - It runs entirely **on your device** with Transformers.js (WebGPU when available, otherwise WASM on the CPU). Your messages are never sent to an AI server.
 - The model downloads **once** from the Hugging Face CDN and is cached by the browser, so later starts are fast and work offline (the page's JavaScript libraries load from jsDelivr).
 - It is a very small model: answers are short and simple. The CPU path is slower than WebGPU (a few seconds per reply).
