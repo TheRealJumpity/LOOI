@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>LOOI v2.0</title>
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:#dffaff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+[hidden]{display:none!important}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+
+/* ---------- THE FACE ---------- */
+.face{--u:1.2vmin;--ec:#bff6ff;--ect:var(--ec);--ew:calc(20*var(--u));--eh:calc(28*var(--u));--er:44%/40%;--ltY:-115%;--ltR:0deg;
+  display:flex;align-items:center;justify-content:center}
+.face.mini{--u:1.7px;margin:0 auto 6px;height:70px}
+.eyes{display:flex;gap:calc(var(--ew)*.72);align-items:center}
+.eye{position:relative;width:var(--ew);height:var(--eh);background:var(--ect);border-radius:var(--er);overflow:hidden;
+  filter:drop-shadow(0 0 calc(2.6*var(--u)) color-mix(in srgb,var(--ect) 65%,transparent));
+  transition:width .25s,height .25s,border-radius .25s,background .25s,scale .09s}
+.eye.blink{scale:1 .07}
+.lt{position:absolute;left:-30%;top:0;width:160%;height:70%;background:#000;translate:0 var(--ltY);rotate:var(--ltR);transition:translate .25s,rotate .25s}
+.eye.r .lt{rotate:calc(var(--ltR)*-1)}
+.eye::before{content:"";position:absolute;left:4%;width:92%;top:34%;height:32%;border:calc(var(--ew)*.17) solid var(--ect);border-bottom:0;
+  border-radius:50% 50% 0 0/100% 100% 0 0;opacity:0;transition:opacity .2s}
+
+.face[data-e=happy] .eye,.face[data-e=excited] .eye{background:transparent}
+.face[data-e=happy] .eye::before,.face[data-e=excited] .eye::before{opacity:1}
+.face[data-e=wink] .eye.r{background:transparent}
+.face[data-e=wink] .eye.r::before{opacity:1}
+.face[data-e=excited]{animation:hop .38s ease-in-out infinite}
+.face[data-e=angry]{--ect:#ffb9ae}
+.face[data-e=angry],.face[data-e=sad],.face[data-e=sleepy]{--ltY:-48%}
+.face[data-e=angry]{--ltR:20deg}
+.face[data-e=sad]{--ltR:-20deg;--ect:#aecbff}
+.face[data-e=sleepy]{--ltY:-36%;--ltR:0deg}
+.face[data-e=surprised]{--ew:calc(22*var(--u));--eh:calc(35*var(--u));--er:50%}
+.face[data-e=scared]{--ew:calc(15*var(--u));--eh:calc(25*var(--u));--er:50%}
+.face[data-e=scared] .eyes{animation:shake .12s linear infinite}
+.face[data-e=thinking] .eye.l{height:calc(var(--eh)*.72)}
+.face[data-e=thinking] .eye.r{width:calc(var(--ew)*1.1)}
+.face[data-e=love]{--ew:calc(23*var(--u));--eh:calc(21*var(--u))}
+.face[data-e=love] .eye{background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 29'%3E%3Cpath fill='%23ff5c93' d='M16 28C4 18 0 12 0 8 0 3 4 0 8.5 0 12 0 14.5 2 16 5 17.5 2 20 0 23.5 0 28 0 32 3 32 8c0 4-4 10-16 20z'/%3E%3C/svg%3E") center/contain no-repeat;
+  filter:drop-shadow(0 0 calc(2*var(--u)) #ff4d8d);animation:beat .7s ease-in-out infinite}
+.face[data-e=dizzy]{--ew:calc(23*var(--u));--eh:calc(23*var(--u));--er:50%}
+.face[data-e=dizzy] .eye{background:repeating-radial-gradient(circle,var(--ec) 0 calc(1.3*var(--u)),#000 calc(1.3*var(--u)) calc(2.6*var(--u)));animation:spin .7s linear infinite}
+.face[data-e=sleep] .eye{scale:1 .06;filter:none;opacity:.7}
+.face[data-listen] .eyes{animation:breathe 1.4s ease-in-out infinite}
+.face[data-talk] .eyes{animation:talk .27s ease-in-out infinite alternate}
+@keyframes hop{50%{translate:0 -2.5vmin}}
+@keyframes shake{25%{rotate:-2.5deg}75%{rotate:2.5deg}}
+@keyframes beat{50%{scale:1.13}}
+@keyframes spin{to{rotate:360deg}}
+@keyframes breathe{50%{scale:1.05}}
+@keyframes talk{from{scale:1}to{scale:1.05 .95}}
+
+/* ---------- AUTH ---------- */
+#auth{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#0b1a20,#000 70%);padding:16px;z-index:50;overflow:auto}
+.card{width:min(380px,100%);background:#06090b;border:1px solid #16303a;border-radius:24px;padding:26px 24px;box-shadow:0 0 60px #00e5ff14}
+.card h1{text-align:center;letter-spacing:.35em;font-weight:300;font-size:30px;color:#bff6ff;text-indent:.35em}
+.card h1 small{letter-spacing:.05em;font-size:13px;color:#4fd9f0;margin-left:4px}
+.sub{text-align:center;color:#7aa5b0;font-size:14px;margin:6px 0 18px}
+.card input[type=text],.card input[type=password]{width:100%;background:#0c1418;border:1px solid #1b3a45;border-radius:14px;padding:13px 14px;margin-bottom:10px;outline:none;font-size:16px}
+.card input:focus{border-color:#4fd9f0;box-shadow:0 0 0 3px #4fd9f022}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:#7aa5b0;margin:2px 0 12px}
+.btn{width:100%;border:0;border-radius:14px;padding:13px;background:#bff6ff;color:#001418;font-weight:600;font-size:16px}
+.btn:disabled{opacity:.5}
+.err{min-height:20px;margin-top:10px;color:#ff9b9b;font-size:13px;text-align:center}
+.link{display:block;margin:6px auto 0;background:none;border:0;color:#4fd9f0;font-size:14px;padding:6px}
+.fine{margin-top:10px;font-size:11.5px;line-height:1.5;color:#58808b;text-align:center}
+
+/* ---------- APP ---------- */
+#app{position:fixed;inset:0;background:#000;user-select:none;-webkit-user-select:none;touch-action:none}
+#stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;will-change:transform;pointer-events:none}
+#zzz{position:absolute;left:62%;top:22%;font-size:5vmin;color:#7fb8c4;opacity:0;transition:opacity .4s;letter-spacing:.3em;animation:zz 2.4s ease-in-out infinite}
+#face[data-e=sleep]+#zzz{opacity:.8}
+@keyframes zz{50%{translate:1vmin -2vmin}}
+#touch{position:absolute;inset:0;z-index:1}
+#caption{position:absolute;left:0;right:0;bottom:5vh;text-align:center;padding:0 8vw;font-size:clamp(14px,3.2vmin,26px);color:#8fdcec;opacity:0;transition:opacity .4s;z-index:2;pointer-events:none;text-shadow:0 0 12px #000}
+#caption.on{opacity:.92}
+#caption.you{color:#6e8c94;font-style:italic}
+#clock{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:#000;font-weight:200;font-size:26vmin;letter-spacing:.04em;color:var(--clk,#bff6ff);text-shadow:0 0 5vmin currentColor;font-variant-numeric:tabular-nums}
+#clock .colon{animation:cb 1s steps(1) infinite}
+@keyframes cb{50%{opacity:.15}}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:9;transition:opacity .35s}
+#cam{position:fixed;left:12px;bottom:12px;width:2px;height:2px;opacity:0;pointer-events:none;border-radius:14px;transform:scaleX(-1);object-fit:cover;z-index:4;border:1px solid #1b3a45}
+#cam.show{width:min(32vw,170px);height:auto;aspect-ratio:4/3;opacity:.9}
+#hud{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity .4s}
+#hud.show{opacity:1}
+#hud button{pointer-events:auto;position:absolute;top:max(12px,env(safe-area-inset-top));width:44px;height:44px;border-radius:50%;border:1px solid #1b3a45;background:#050b0eaa;font-size:18px;color:#bff6ff}
+#bMenu{right:12px}#bFull{right:64px}
+#status{position:absolute;left:14px;top:max(18px,env(safe-area-inset-top));display:flex;gap:10px;font-size:12px;color:#58808b;align-items:center}
+#status i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2a3a40;margin-right:4px}
+#status i.on{background:#3ddc84;box-shadow:0 0 8px #3ddc84}
+#timerBadge{pointer-events:auto;position:absolute;left:50%;translate:-50% 0;top:max(14px,env(safe-area-inset-top));background:#050b0eaa;border:1px solid #1b3a45;border-radius:20px;padding:6px 14px;font-size:14px;color:#bff6ff;z-index:6}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);translate:-50% 0;max-width:min(92vw,520px);background:#0a1418f2;border:1px solid #1f4452;border-radius:14px;padding:10px 16px;font-size:13.5px;z-index:60;opacity:0;pointer-events:none;transition:opacity .3s;text-align:center}
+#toast.on{opacity:1}
+
+#wake{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 20px 9vh;gap:10px;background:#000c}
+#wake p{font-size:13px;color:#7aa5b0;text-align:center;max-width:420px;line-height:1.5}
+#wake .btn{width:auto;padding:14px 34px;font-size:17px}
+
+#drawer{position:absolute;top:0;right:0;bottom:0;width:min(420px,100vw);background:#070c0ff7;border-left:1px solid #16303a;z-index:10;translate:100% 0;transition:translate .28s;display:flex;flex-direction:column;backdrop-filter:blur(10px)}
+#drawer.open{translate:0 0}
+#drawer header{display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 10px 8px 12px;border-bottom:1px solid #12262d}
+#tabs{display:flex;gap:4px}
+#tabs button,.chip{background:none;border:1px solid transparent;border-radius:12px;padding:8px 12px;font-size:14px;color:#7aa5b0}
+#tabs button.on{background:#0e2a33;color:#bff6ff;border-color:#1b3a45}
+#dClose{background:none;border:0;font-size:20px;padding:8px 10px;color:#7aa5b0}
+#drawer section{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+#log{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.msg{max-width:86%;padding:9px 12px;border-radius:14px;font-size:14.5px;line-height:1.4;word-wrap:break-word}
+.msg.u{align-self:flex-end;background:#12303a}
+.msg.a{align-self:flex-start;background:#0d1b20;border:1px solid #16303a}
+#chatForm{display:flex;gap:6px}
+#chatForm input{flex:1;min-width:0;background:#0c1418;border:1px solid #1b3a45;border-radius:14px;padding:11px 12px;font-size:16px;outline:none}
+.sm{background:#0e2a33;border:1px solid #1b3a45;border-radius:12px;padding:10px 14px;font-size:14px}
+.sm.warn{border-color:#5a2a2a;color:#ffb0b0;background:#1a0c0c}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+h3{font-size:12px;font-weight:600;color:#58808b;letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px}
+.row input[type=text],.row input[type=password],.row select{background:#0c1418;border:1px solid #1b3a45;border-radius:10px;padding:8px 10px;font-size:14px;max-width:62%;min-width:0;outline:none}
+.col{display:flex;flex-direction:column;gap:8px}
+.col input[type=text],.col input[type=password]{width:100%;background:#0c1418;border:1px solid #1b3a45;border-radius:10px;padding:8px 10px;font-size:14px;outline:none}
+.note{font-size:12px;color:#58808b;line-height:1.45}
+#dpad{display:grid;grid-template-columns:repeat(3,76px);grid-template-rows:repeat(3,76px);gap:8px;justify-content:center;margin:10px 0}
+#dpad button{border-radius:20px;background:#0e2a33;border:1px solid #1b3a45;font-size:24px;touch-action:none}
+#dpad button:active,#dpad button.hold{background:#14475a}
+.hide{display:none}
+</style>
+</head>
+<body>
+<noscript>LOOI needs JavaScript.</noscript>
+
+<!-- ============ LOGIN ============ -->
+<div id="auth">
+  <div class="card">
+    <div class="face mini" id="authFace" data-e="neutral"><div class="eyes"><div class="eye l"><i class="lt"></i></div><div class="eye r"><i class="lt"></i></div></div></div>
+    <h1>LOOI<small>v2.0</small></h1>
+    <p class="sub" id="authSub">Sign in to wake up your robot</p>
+    <form id="authForm">
+      <input type="text" id="u" placeholder="Username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
+      <input type="password" id="p" placeholder="Password" autocomplete="current-password">
+      <input type="password" id="p2" placeholder="Repeat password" autocomplete="new-password" hidden>
+      <label class="chk"><input type="checkbox" id="rem" checked> Keep me signed in on this device</label>
+      <button class="btn" id="authBtn" type="submit">Sign in</button>
+      <div class="err" id="authErr" role="alert"></div>
+    </form>
+    <button class="link" id="authToggle" type="button">New here? Create an account</button>
+    <p class="fine">Username + password only, no email. Accounts live in this browser (GitHub Pages has no server), so they don't sync between devices.</p>
+  </div>
+</div>
+
+<!-- ============ ROBOT ============ -->
+<div id="app" hidden>
+  <div id="stage">
+    <div class="face" id="face" data-e="sleep"><div class="eyes"><div class="eye l"><i class="lt"></i></div><div class="eye r"><i class="lt"></i></div></div></div>
+    <div id="zzz">z Z z</div>
+  </div>
+  <div id="clock" hidden></div>
+  <div id="touch"></div>
+  <div id="caption"></div>
+  <video id="cam" playsinline muted autoplay></video>
+  <div id="flash"></div>
+
+  <div id="hud">
+    <div id="status"><span><i id="sCam"></i>cam</span><span><i id="sMic"></i>mic</span><span><i id="sAi"></i>ai</span></div>
+    <button id="bFull" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+    <button id="bMenu" title="Menu" aria-label="Menu">⋯</button>
+  </div>
+  <div id="timerBadge" hidden></div>
+
+  <div id="wake">
+    <button class="btn" id="wakeBtn">Wake up LOOI</button>
+    <p id="wakeNote">LOOI will ask for your camera and microphone, just like the real one. Nothing is recorded or uploaded; video is only analysed on this device.</p>
+    <button class="link" id="wakeOut">Sign out</button>
+  </div>
+
+  <aside id="drawer" aria-label="Menu">
+    <header>
+      <nav id="tabs">
+        <button data-tab="chat" class="on">Chat</button>
+        <button data-tab="play">Play</button>
+        <button data-tab="drive">Drive</button>
+        <button data-tab="set">Settings</button>
+      </nav>
+      <button id="dClose" aria-label="Close">✕</button>
+    </header>
+
+    <section data-pane="chat">
+      <div id="log"></div>
+      <form id="chatForm">
+        <button type="button" class="sm" id="micBtn" title="Talk to LOOI" aria-label="Talk">🎙</button>
+        <input id="chatIn" placeholder="Talk to LOOI…" autocomplete="off" maxlength="300">
+        <button class="sm" type="submit">Send</button>
+      </form>
+      <p class="note">Say “Hey Looi” out loud, or type here. Try: “dance”, “what time is it”, “timer for 2 minutes”, “be happy”, “go to sleep”.</p>
+    </section>
+
+    <section data-pane="play" hidden>
+      <h3>Expressions</h3>
+      <div class="grid" id="expGrid"></div>
+      <h3>Actions</h3>
+      <div class="grid">
+        <button class="sm" id="aDance">🎵 Dance</button>
+        <button class="sm" id="aClock">🕒 Clock</button>
+        <button class="sm" id="aSpin">🌀 Spin</button>
+        <button class="sm" id="aPhoto">📸 Photo</button>
+        <button class="sm" id="aSleep">😴 Sleep</button>
+        <button class="sm" id="aWink">😉 Peek</button>
+      </div>
+      <h3>Timer</h3>
+      <div class="row"><input type="text" id="tMin" inputmode="numeric" placeholder="minutes" style="width:110px"><button class="sm" id="tStart">Start timer</button></div>
+    </section>
+
+    <section data-pane="drive" hidden>
+      <p class="note">Real LOOI drives around your desk. Here the screen is the desk: LOOI rolls around it and gets scared at the edge. Arrow keys / WASD also work.</p>
+      <div id="dpad">
+        <span></span><button data-dir="U">▲</button><span></span>
+        <button data-dir="L">◀</button><button id="dCenter">●</button><button data-dir="R">▶</button>
+        <span></span><button data-dir="D">▼</button><span></span>
+      </div>
+      <div class="grid"><button class="sm" id="dSpin">🌀 Spin</button><button class="sm" id="dHome">🏠 Go home</button><button class="sm" id="dDance">🎵 Dance</button></div>
+    </section>
+
+    <section data-pane="set" hidden>
+      <h3>Look &amp; sound</h3>
+      <div class="row"><span>Eye colour</span><input type="color" data-set="color"></div>
+      <div class="row"><span>Sound effects</span><input type="checkbox" data-set="sfx"></div>
+      <div class="row"><span>LOOI talks out loud</span><input type="checkbox" data-set="voice"></div>
+      <div class="row"><span>Voice pitch</span><input type="range" min="0.8" max="2" step="0.05" data-set="pitch"></div>
+      <div class="row"><span>Subtitles</span><input type="checkbox" data-set="captions"></div>
+      <h3>Senses</h3>
+      <div class="row"><span>Camera (eyes follow you)</span><input type="checkbox" data-set="cam"></div>
+      <div class="row"><span>Show camera preview</span><input type="checkbox" data-set="preview"></div>
+      <div class="row"><span>Microphone</span><input type="checkbox" data-set="mic"></div>
+      <div class="row"><span>Need “Hey Looi” first</span><input type="checkbox" data-set="hey"></div>
+      <div class="row"><span>Speech language</span>
+        <select data-set="lang"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="es-ES">Español</option><option value="fr-FR">Français</option><option value="de-DE">Deutsch</option><option value="pt-BR">Português</option><option value="it-IT">Italiano</option><option value="ja-JP">日本語</option></select></div>
+      <div class="row"><span>Tilt &amp; shake (phones)</span><input type="checkbox" data-set="tilt"></div>
+      <h3>Brain (free AI)</h3>
+      <div class="row"><span>Provider</span>
+        <select data-set="provider"><option value="pollinations">Cloud · Pollinations (free)</option><option value="webllm">On-device · WebLLM (WebGPU)</option><option value="custom">Custom OpenAI-compatible</option></select></div>
+      <div class="col" data-prov="pollinations"><div class="row"><span>Model</span><input type="text" data-set="pModel" placeholder="openai"></div>
+        <p class="note">No key needed. Messages are sent to text.pollinations.ai. Don't tell LOOI secrets.</p></div>
+      <div class="col hide" data-prov="webllm"><div class="row"><span>Model</span>
+        <select data-set="wlModel"><option value="SmolLM2-360M-Instruct-q4f16_1-MLC">SmolLM2 360M (~250 MB, fast)</option><option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~700 MB, smarter)</option></select></div>
+        <p class="note">Runs fully on your device and offline after the first download. Needs a WebGPU browser (recent Chrome/Edge). Downloaded once, then cached.</p></div>
+      <div class="col hide" data-prov="custom">
+        <input type="text" data-set="cUrl" placeholder="https://…/v1/chat/completions">
+        <input type="text" data-set="cModel" placeholder="model name">
+        <input type="password" data-set="cKey" placeholder="API key (stored in this browser only)">
+        <p class="note">Works with OpenRouter, Groq, Together, Ollama and similar free tiers.</p></div>
+      <div class="grid"><button class="sm" id="aiTest">Test brain</button><button class="sm" id="clearChat">Clear chat</button><button class="sm" id="reWake">Re-ask perms</button></div>
+      <h3>Account</h3>
+      <div class="row"><span id="whoami"></span><button class="sm" id="signOut">Sign out</button></div>
+      <button class="sm warn" id="delAcc">Delete this account</button>
+    </section>
+  </aside>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   LOOI v2.0 — static web build for GitHub Pages
+   ===================================================================== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const rnd=(a,b)=>a+Math.random()*(b-a), pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
+let toastT; function toast(m,ms=3200){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);if(ms)toastT=setTimeout(()=>t.classList.remove('on'),ms)}
+
+/* ===================== AUTH (username + password, no email) ===================== */
+const enc=new TextEncoder();
+const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b)));
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function hashPw(pw,salt){
+  const k=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);
+  return b64(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},k,256));
+}
+function safeEq(a,b){if(a.length!==b.length)return false;let r=0;for(let i=0;i<a.length;i++)r|=a.charCodeAt(i)^b.charCodeAt(i);return r===0}
+
+const authFace=$('#authFace'); let mode='signin',fails=0,lockUntil=0;
+function authErr(m){$('#authErr').textContent=m;if(m){authFace.dataset.e='sad';setTimeout(()=>authFace.dataset.e=document.activeElement?.type==='password'?'sleep':'neutral',1400)}}
+function setMode(m){mode=m;const up=m==='signup';$('#p2').hidden=!up;$('#authBtn').textContent=up?'Create account':'Sign in';
+  $('#authSub').textContent=up?'Make an account to meet your LOOI':'Sign in to wake up your robot';
+  $('#authToggle').textContent=up?'Already have an account? Sign in':'New here? Create an account';
+  $('#p').autocomplete=up?'new-password':'current-password';authErr('')}
+$('#authToggle').onclick=()=>setMode(mode==='signin'?'signup':'signin');
+document.addEventListener('pointermove',e=>{if($('#auth').hidden)return;
+  authFace.querySelector('.eyes').style.translate=`${clamp((e.clientX/innerWidth-.5)*2,-1,1)*6}px ${clamp((e.clientY/innerHeight-.5)*2,-1,1)*4}px`});
+['p','p2'].forEach(id=>{$('#'+id).addEventListener('focus',()=>authFace.dataset.e='sleep');$('#'+id).addEventListener('blur',()=>authFace.dataset.e='neutral')});
+setInterval(()=>{if($('#auth').hidden)return;const es=$$('.eye',authFace);if(authFace.dataset.e==='neutral'){es.forEach(e=>e.classList.add('blink'));setTimeout(()=>es.forEach(e=>e.classList.remove('blink')),130)}},3200);
+
+$('#authForm').addEventListener('submit',async ev=>{
+  ev.preventDefault();
+  if(!window.crypto?.subtle)return authErr('This page must be opened over HTTPS (GitHub Pages is fine).');
+  const now=Date.now(); if(now<lockUntil)return authErr(`Too many tries. Wait ${Math.ceil((lockUntil-now)/1000)}s.`);
+  const name=$('#u').value.trim().toLowerCase(), pw=$('#p').value;
+  if(!/^[a-z0-9_]{3,20}$/.test(name))return authErr('Username: 3–20 letters, numbers or _');
+  if(pw.length<6)return authErr('Password needs at least 6 characters');
+  const users=LS.get('looi_users',{}); const btn=$('#authBtn'); btn.disabled=true;
+  try{
+    if(mode==='signup'){
+      if(users[name])return authErr('That username is taken');
+      if(pw!==$('#p2').value)return authErr('Passwords do not match');
+      const salt=crypto.getRandomValues(new Uint8Array(16));
+      users[name]={salt:b64(salt),hash:await hashPw(pw,salt),created:Date.now()};
+      LS.set('looi_users',users);
+    }else{
+      const u=users[name]; const ok=u&&safeEq(await hashPw(pw,unb64(u.salt)),u.hash);
+      if(!ok){fails++;if(fails>=5){lockUntil=Date.now()+30000;fails=0}return authErr('Wrong username or password')}
+      fails=0;
+    }
+    authErr('');
+    (($('#rem').checked)?localStorage:sessionStorage).setItem('looi_session',name);
+    authFace.dataset.e='happy'; $('#authForm').reset(); setTimeout(()=>enterApp(name),550);
+  }catch(e){authErr('Something went wrong: '+e.message)}
+  finally{btn.disabled=false}
+});
+
+function signOut(){localStorage.removeItem('looi_session');sessionStorage.removeItem('looi_session');location.reload()}
+
+/* ===================== USER DATA ===================== */
+const DEFAULTS={color:'#bff6ff',sfx:true,voice:true,pitch:1.7,captions:true,cam:true,preview:false,mic:true,hey:true,lang:'en-US',tilt:false,
+  provider:'pollinations',pModel:'openai',wlModel:'SmolLM2-360M-Instruct-q4f16_1-MLC',cUrl:'',cModel:'',cKey:''};
+let S=null; // {user,set,hist}
+const saveData=()=>LS.set('looi_data_'+S.user,{set:S.set,hist:S.hist.slice(-30)});
+
+/* ===================== FACE ENGINE ===================== */
+const face=$('#face'),eyesEl=$('#face .eyes'),eyeEls=$$('#face .eye'),stage=$('#stage');
+const EMOS=['neutral','happy','sad','angry','surprised','love','sleepy','wink','scared','excited','dizzy','thinking'];
+let baseExp='sleep',holdT=null,lastAct=Date.now();
+function setExp(e,ms=0){if(!EMOS.includes(e)&&e!=='sleep')e='neutral';face.dataset.e=e;clearTimeout(holdT);if(ms)holdT=setTimeout(()=>face.dataset.e=baseExp,ms)}
+const unit=()=>Math.min(innerWidth,innerHeight)*0.012;
+let look={x:0,y:0,tx:0,ty:0},lastTrack=0,dragging=false;
+function lookAt(x,y,hold=true){look.tx=clamp(x,-1,1);look.ty=clamp(y,-1,1);if(hold)lastTrack=Date.now()}
+function blink(){eyeEls.forEach(e=>e.classList.add('blink'));setTimeout(()=>eyeEls.forEach(e=>e.classList.remove('blink')),130)}
+function interact(){lastAct=Date.now();if(baseExp==='sleep')wakeFace()}
+function wakeFace(){baseExp='neutral';sleptByDark=false;setExp('surprised',650);sfx.wake()}
+function goSleep(){baseExp='sleep';setExp('sleep');look.tx=look.ty=0}
+
+/* ===================== SOUND EFFECTS (WebAudio) ===================== */
+let actx=null;
+function ac(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx}
+function tone(f1,f2,dur,type='sine',vol=.08,delay=0){
+  if(!S||!S.set.sfx)return;
+  try{const a=ac(),t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.05)}catch{}
+}
+const sfx={
+  poke:()=>tone(700,1500,.13,'sine',.1), wake:()=>{tone(400,900,.15,'triangle',.08);tone(900,1300,.12,'triangle',.07,.12)},
+  boot:()=>[523,659,784,1047].forEach((f,i)=>tone(f,f*1.01,.2,'triangle',.08,i*.12)),
+  love:()=>{tone(600,900,.18,'sine',.08);tone(700,1100,.22,'sine',.08,.16)}, edge:()=>{tone(300,120,.25,'square',.05)},
+  alarm:()=>{for(let i=0;i<6;i++)tone(1100,1100,.12,'square',.05,i*.28)}, shutter:()=>{tone(1800,300,.08,'square',.05)},
+  grr:()=>tone(160,90,.4,'sawtooth',.07)
+};
+let motor=null;
+function motorOn(){if(motor||!S.set.sfx)return;try{const a=ac(),o=a.createOscillator(),g=a.createGain();o.type='sawtooth';o.frequency.value=58;g.gain.value=.018;o.connect(g).connect(a.destination);o.start();motor={o,g}}catch{}}
+function motorOff(){if(!motor)return;try{motor.o.stop()}catch{}motor=null}
+
+/* ===================== SPEECH OUT ===================== */
+let speaking=false,voices=[];
+if('speechSynthesis' in window){const lv=()=>voices=speechSynthesis.getVoices();lv();speechSynthesis.onvoiceschanged=lv}
+function pickVoice(){const l=S.set.lang.slice(0,2);const c=voices.filter(v=>v.lang.toLowerCase().startsWith(l));
+  return c.find(v=>/female|samantha|zira|karen|google|aria|jenny/i.test(v.name))||c[0]||null}
+function speak(text){
+  return new Promise(res=>{
+    if(!S.set.voice||!('speechSynthesis' in window)){pulseTalk(text.length*55+600);return res()}
+    speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();if(v){u.voice=v;u.lang=v.lang}else u.lang=S.set.lang;
+    u.pitch=S.set.pitch;u.rate=1.08;speaking=true;face.dataset.talk='1';pauseRec();let done=false;
+    const fin=()=>{if(done)return;done=true;speaking=false;delete face.dataset.talk;resumeRec();res()};
+    u.onend=fin;u.onerror=fin;setTimeout(fin,text.length*120+3500);speechSynthesis.speak(u);
+  });
+}
+function pulseTalk(ms){face.dataset.talk='1';setTimeout(()=>{if(!speaking)delete face.dataset.talk},ms)}
+let capT;
+function caption(text,cls=''){if(!S.set.captions)return;const c=$('#caption');c.textContent=text;c.className='on '+cls;clearTimeout(capT);capT=setTimeout(()=>c.classList.remove('on'),2500+text.length*70)}
+function parseEmo(t){const m=t.match(/\[(\w+)\]/);let e=m?m[1].toLowerCase():'happy';if(e==='mad')e='angry';if(e==='tired')e='sleepy';if(!EMOS.includes(e))e='happy';
+  return{emo:e,text:t.replace(/\[\w+\]/g,'').replace(/\s+/g,' ').trim()}}
+async function say(raw,logIt=true){
+  const {emo,text}=parseEmo(raw);if(!text)return;interact();setExp(emo,Math.max(3000,text.length*70));caption(text);
+  if(logIt)addMsg('a',text);
+  if(emo==='love')sfx.love();
+  await speak(text);
+}
+
+/* ===================== AI BRAIN ===================== */
+const SYSTEM=u=>`You are LOOI, a tiny, curious, cheerful desktop robot companion. Your whole face is two expressive eyes on a phone screen and you roll around a desk. The person's name is ${u}. Speak in 1–2 short sentences (max 30 words), warm and playful. No emojis, no markdown, no lists. Reply in the same language the person uses. Begin every reply with exactly one emotion tag in square brackets chosen from: [happy] [sad] [angry] [surprised] [love] [sleepy] [thinking] [wink] [scared] [excited] [neutral] [dizzy].`;
+let wlEngine=null,wlLoading=null;
+async function getWebllm(){
+  if(wlEngine)return wlEngine; if(!navigator.gpu)throw new Error('WebGPU not available in this browser');
+  if(!wlLoading)wlLoading=(async()=>{const wl=await import('https://esm.run/@mlc-ai/web-llm');
+    wlEngine=await wl.CreateMLCEngine(S.set.wlModel,{initProgressCallback:p=>toast('Loading brain: '+(p.text||'').slice(0,90),0)});toast('Brain loaded!',1500);return wlEngine})();
+  try{return await wlLoading}catch(e){wlLoading=null;throw e}
+}
+async function callAI(msgs){
+  const p=S.set.provider;
+  if(p==='webllm'){const en=await getWebllm();const r=await en.chat.completions.create({messages:msgs,max_tokens:120,temperature:.8});return r.choices[0].message.content.trim()}
+  const headers={'Content-Type':'application/json'};let url,model;
+  if(p==='custom'){url=S.set.cUrl;model=S.set.cModel;if(!url)throw new Error('No custom URL set');if(S.set.cKey)headers.Authorization='Bearer '+S.set.cKey}
+  else{url='https://text.pollinations.ai/openai';model=S.set.pModel||'openai'}
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),25000);
+  try{const r=await fetch(url,{method:'POST',headers,body:JSON.stringify({model,messages:msgs,temperature:.8,max_tokens:120}),signal:ctl.signal});
+    if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();const t=j.choices?.[0]?.message?.content;if(!t)throw new Error('Empty reply');return t.trim()}
+  finally{clearTimeout(to)}
+}
+function offline(t){const l=t.toLowerCase();
+  if(/\b(hi|hello|hey|yo)\b/.test(l))return pick(['[happy] Hi hi! I am so happy to see you!','[excited] Hello friend! Want to play?']);
+  if(/your name|who are you/.test(l))return '[happy] I am Looi, your tiny desk buddy!';
+  if(/how are you/.test(l))return '[happy] I am great! My eyes are working and you are here.';
+  if(/joke/.test(l))return pick(['[wink] Why did the robot go on holiday? It needed to recharge!','[happy] What do you call a sleepy robot? A nap-bot!']);
+  if(/love you|i like you/.test(l))return '[love] Aww, I love you too!';
+  if(/thank/.test(l))return '[happy] Anytime, friend!';
+  if(/sad|tired|bad day|lonely/.test(l))return '[sad] Aw, I am right here with you.';
+  return pick(['[thinking] Hmm, my big brain is offline right now, but I am listening!','[happy] I did not get that, but I like talking with you!']);
+}
+function aiDot(on){$('#sAi').classList.toggle('on',on)}
+let busy=false;
+async function ask(text){
+  if(busy)return;busy=true;setExp('thinking');look.tx=.5;look.ty=-.8;lastTrack=Date.now()+1500;
+  S.hist.push({role:'user',content:text});
+  const msgs=[{role:'system',content:SYSTEM(S.user)},...S.hist.slice(-8)];
+  let reply;
+  try{reply=await callAI(msgs);aiDot(true)}catch(e){aiDot(false);reply=offline(text);toast('AI unreachable ('+e.message+'). Using my tiny offline brain.',4200)}
+  S.hist.push({role:'assistant',content:reply});saveData();busy=false;
+  await say(reply);
+}
+
+/* ===================== COMMANDS ===================== */
+function processInput(text,fromVoice=false){
+  text=text.trim();if(!text)return;interact();addMsg('u',text);if(fromVoice)caption(text,'you');
+  const l=text.toLowerCase().replace(/[.!?]+$/,'');
+  const exp=l.match(/\b(?:be|look|feel|show(?: me)?|make a|do a|act)\s+(?:a\s+)?(happy|sad|angry|mad|surprised|love|loving|sleepy|tired|wink|scared|excited|dizzy)\b/);
+  const tm=l.match(/timer.*?(\d+)\s*(second|sec|minute|min|hour|hr)/);
+  if(tm){const n=+tm[1],u=tm[2];startTimer(/^h/.test(u)?n*3600:/^m/.test(u)?n*60:n);return say(`[excited] Timer set for ${n} ${u.replace(/s$/,'')}${n>1?'s':''}!`)}
+  if(/\b(what('?s| is) the time|what time|time is it)\b/.test(l))return say('[happy] It is '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
+  if(/\b(dance|boogie|party)\b/.test(l)){say('[excited] Let us dance!');return dance(12)}
+  if(/\b(go to sleep|good ?night|sleep now|nap)\b/.test(l)){say('[sleepy] Goodnight...').then(()=>setTimeout(goSleep,700));return}
+  if(/\b(stop|cancel|quiet|shush)\b/.test(l)){danceUntil=0;stopTimer();speechSynthesis?.cancel();return say('[happy] Okay, stopped!')}
+  if(/\b(photo|selfie|picture)\b/.test(l))return takePhoto();
+  if(/\bspin\b/.test(l)){say('[excited] Wheee!');return spin()}
+  if(/\bclock\b/.test(l)){showClock(true);return say('[happy] Here is the clock. Tap to close.')}
+  if(exp){let e=exp[1];e={mad:'angry',tired:'sleepy',loving:'love'}[e]||e;setExp(e,4000);if(e==='love')sfx.love();if(e==='angry')sfx.grr();return say(`[${e}] ${pick(['Like this?','Okay!','How is this?'])}`,false)}
+  return ask(text);
+}
+
+/* ===================== PLAY: dance / spin / clock / timer / photo ===================== */
+let danceUntil=0,spinStart=0;
+function dance(sec=12){interact();danceUntil=Date.now()+sec*1000;setExp('excited',sec*1000);[0,.3,.6,.9,1.2,1.5,1.8].forEach((d,i)=>tone(i%2?523:392,i%2?587:440,.2,'triangle',.06,d))}
+function spin(){interact();spinStart=performance.now();sfx.poke();setTimeout(()=>setExp('dizzy',2200),900)}
+let clockT=null;
+function showClock(on){const c=$('#clock');c.hidden=!on;clearInterval(clockT);if(on){c.style.setProperty('--clk',S.set.color);const f=()=>{const d=new Date();let h=d.getHours()%12||12;c.innerHTML=`${h}<span class="colon">:</span>${String(d.getMinutes()).padStart(2,'0')}`};f();clockT=setInterval(f,1000);closeDrawer()}}
+$('#clock').onclick=()=>showClock(false);
+let timerEnd=0,timerI=null;
+function startTimer(sec){timerEnd=Date.now()+sec*1000;clearInterval(timerI);const b=$('#timerBadge');b.hidden=false;
+  const f=()=>{const r=Math.max(0,Math.round((timerEnd-Date.now())/1000));b.textContent='⏱ '+Math.floor(r/60)+':'+String(r%60).padStart(2,'0');
+    if(r<=0){stopTimer();sfx.alarm();setExp('surprised',4000);say('[excited] Time is up!')}};f();timerI=setInterval(f,500)}
+function stopTimer(){clearInterval(timerI);$('#timerBadge').hidden=true}
+$('#timerBadge').onclick=()=>{stopTimer();toast('Timer cancelled')};
+function takePhoto(){
+  if(!camStream||!cam.videoWidth){toast('Turn the camera on first');return say('[sad] I cannot see anything. Is my camera on?')}
+  const c=document.createElement('canvas');c.width=cam.videoWidth;c.height=cam.videoHeight;const x=c.getContext('2d');x.translate(c.width,0);x.scale(-1,1);x.drawImage(cam,0,0);
+  const f=$('#flash');f.style.transition='none';f.style.opacity=1;requestAnimationFrame(()=>{f.style.transition='opacity .35s';f.style.opacity=0});sfx.shutter();
+  const a=document.createElement('a');const d=new Date(),p=n=>String(n).padStart(2,'0');a.download=`looi-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}.jpg`;
+  c.toBlob(b=>{a.href=URL.createObjectURL(b);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)},'image/jpeg',.9);
+  setExp('wink',1800);say('[wink] Say cheese! Saved to your downloads.',false);
+}
+
+/* ===================== DRIVE (the screen is the desk) ===================== */
+const drive={x:0,y:0,rot:0},dirs=new Set();let edgeCool=0,lastEdgeSay=0,wasMoving=false;
+function driveStep(){
+  const dx=(dirs.has('R')?1:0)-(dirs.has('L')?1:0),dy=(dirs.has('D')?1:0)-(dirs.has('U')?1:0);
+  const limX=innerWidth*.3,limY=innerHeight*.2,now=Date.now(),moving=(dx||dy)&&now>edgeCool;
+  if(moving){interact();const nx=drive.x+dx*3.4,ny=drive.y+dy*3.4;
+    if(Math.abs(nx)>limX||Math.abs(ny)>limY){edgeHit(dx,dy)}else{drive.x=nx;drive.y=ny;drive.rot+=((dx*4)-drive.rot)*.1;lookAt(dx*.9,dy*.6)}
+  }else drive.rot*=.9;
+  if(moving&&!wasMoving)motorOn();if(!moving&&wasMoving)motorOff();wasMoving=moving;
+}
+function edgeHit(dx,dy){edgeCool=Date.now()+1300;motorOff();sfx.edge();setExp('scared',1500);drive.x-=dx*innerWidth*.07;drive.y-=dy*innerHeight*.07;
+  if(Date.now()-lastEdgeSay>6000){lastEdgeSay=Date.now();say(pick(['[scared] Whoa! That is the edge!','[scared] Eek! I almost fell off the desk!']),false)}}
+function goHome(){dirs.clear();drive.x=drive.y=0;drive.rot=0}
+$$('#dpad [data-dir]').forEach(b=>{const d=b.dataset.dir;const on=e=>{e.preventDefault();dirs.add(d);b.classList.add('hold')},off=()=>{dirs.delete(d);b.classList.remove('hold')};
+  b.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,off))});
+$('#dCenter').onclick=goHome;$('#dHome').onclick=goHome;$('#dSpin').onclick=spin;$('#dDance').onclick=()=>dance(12);
+const KEYS={ArrowUp:'U',w:'U',ArrowDown:'D',s:'D',ArrowLeft:'L',a:'L',ArrowRight:'R',d:'R'};
+addEventListener('keydown',e=>{if(!S||$('#app').hidden||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;const k=KEYS[e.key];if(k){dirs.add(k);e.preventDefault()}});
+addEventListener('keyup',e=>{const k=KEYS[e.key];if(k)dirs.delete(k)});
+
+/* ===================== MAIN FRAME LOOP ===================== */
+let nextBlink=0,nextGlance=0,nextQuirk=Date.now()+30000;
+function frame(t){
+  const u=unit()*6;look.x+=(look.tx-look.x)*.16;look.y+=(look.ty-look.y)*.16;
+  eyesEl.style.translate=`${look.x*u*1.5}px ${look.y*u*1.1}px`;
+  if(S&&!$('#app').hidden){driveStep();
+    let dx=drive.x,dy=drive.y,rot=drive.rot;
+    if(Date.now()<danceUntil){const v=Math.min(1,mic.vol*5);dx+=Math.sin(t/230)*u*.5;rot+=Math.sin(t/460)*7;dy-=Math.abs(Math.sin(t/230))*u*.45*(1+v*2)}
+    if(spinStart){const p=(t-spinStart)/900;if(p>=1)spinStart=0;else rot+=360*(p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2)}
+    stage.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg)`;
+  }
+  requestAnimationFrame(frame);
+}
+setInterval(()=>{
+  if(!S||$('#app').hidden)return;const now=Date.now();
+  if(now>nextBlink){blink();nextBlink=now+(baseExp==='sleepy'?rnd(1500,3000):rnd(2500,6500));if(Math.random()<.2)setTimeout(blink,260)}
+  if(now>nextGlance&&!dragging&&now-lastTrack>1800&&baseExp!=='sleep'&&!dirs.size){look.tx=Math.random()<.35?0:rnd(-1,1);look.ty=Math.random()<.35?0:rnd(-.6,.5);nextGlance=now+rnd(1400,4200)}
+  if(now-lastTrack>2500&&baseExp==='sleep'){look.tx=look.ty=0}
+  face.toggleAttribute('data-listen',(now<convoUntil||forceListen)&&!speaking);
+  if(baseExp==='neutral'&&now-lastAct>120000)goSleep();
+  if(baseExp==='neutral'&&now>nextQuirk&&now-lastAct>15000&&face.dataset.e==='neutral'){nextQuirk=now+rnd(25000,55000);setExp(pick(['wink','happy','thinking','sleepy','surprised']),1600)}
+},100);
+
+/* ===================== TOUCH ===================== */
+let pd=null,lpT=null;const touch=$('#touch');
+const lookFromEvent=e=>lookAt((e.clientX/innerWidth-.5)*2.4,(e.clientY/innerHeight-.5)*2.4);
+let pokes=[];
+function poke(){interact();sfx.poke();const n=Date.now();pokes=pokes.filter(t=>n-t<3500);pokes.push(n);
+  if(pokes.length>=5){pokes=[];setExp('angry',2500);sfx.grr();say('[angry] Hey! Stop poking me!',false);return}
+  setExp(pick(['surprised','happy','wink']),700)}
+function love(){interact();sfx.love();setExp('love',3000);if(S.set.voice&&Math.random()<.5)say('[love] Aww, thank you!',false)}
+touch.addEventListener('pointerdown',e=>{interact();showHud();pd={x:e.clientX,y:e.clientY,moved:false,long:false};dragging=true;lookFromEvent(e);
+  lpT=setTimeout(()=>{if(pd&&!pd.moved){pd.long=true;love()}},700)});
+touch.addEventListener('pointermove',e=>{showHud();if(dragging&&pd){lookFromEvent(e);if(Math.hypot(e.clientX-pd.x,e.clientY-pd.y)>12)pd.moved=true}else if(e.pointerType==='mouse'){lookFromEvent(e)}});
+['pointerup','pointercancel'].forEach(ev=>touch.addEventListener(ev,()=>{clearTimeout(lpT);dragging=false;if(pd&&!pd.moved&&!pd.long)poke();pd=null}));
+let hudT;function showHud(){const h=$('#hud');h.classList.add('show');clearTimeout(hudT);hudT=setTimeout(()=>{if(!$('#drawer').classList.contains('open'))h.classList.remove('show')},3500)}
+
+/* ===================== CAMERA (vision) ===================== */
+const cam=$('#cam');let camStream=null,micStream=null,visionT=null,faceT=null,lastSeen=0,darkSince=0,sleptByDark=false,prevG=null;
+const vc=document.createElement('canvas');vc.width=48;vc.height=36;const vx=vc.getContext('2d',{willReadFrequently:true});
+function visionLoop(){
+  if(!cam.videoWidth||cam.readyState<2)return;
+  vx.drawImage(cam,0,0,48,36);const d=vx.getImageData(0,0,48,36).data,g=new Uint8Array(48*36);let sum=0;
+  for(let i=0;i<g.length;i++){g[i]=d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11;sum+=g[i]}
+  const avg=sum/g.length,now=Date.now();
+  if(avg<16){if(!darkSince)darkSince=now;if(now-darkSince>8000&&baseExp!=='sleep'){sleptByDark=true;goSleep()}}
+  else{darkSince=0;if(sleptByDark&&avg>40)interact()}
+  if(prevG){let sx=0,sy=0,n=0;for(let y=0;y<36;y++)for(let x=0;x<48;x++){const i=y*48+x;if(Math.abs(g[i]-prevG[i])>28){sx+=x;sy+=y;n++}}
+    if(n>14&&avg>=16){lookAt((sx/n/48-.5)*2.4,(sy/n/36-.5)*2.2);if(n>45)lastAct=now;
+      if(!window.FaceDetector&&n>120)seen(now)}}
+  prevG=g;
+}
+let fd=null,fdBusy=false;
+async function faceLoop(){
+  if(!window.FaceDetector||fdBusy||!cam.videoWidth)return;fdBusy=true;
+  try{fd=fd||new FaceDetector({fastMode:true,maxDetectedFaces:1});const f=await fd.detect(cam);
+    if(f.length){const b=f[0].boundingBox;lookAt(((b.x+b.width/2)/cam.videoWidth-.5)*2.4,((b.y+b.height/2)/cam.videoHeight-.5)*2.2);lastAct=Date.now();seen(Date.now())}}
+  catch{window.FaceDetector=undefined}finally{fdBusy=false}
+}
+function seen(now){const gap=now-lastSeen;lastSeen=now;
+  if(gap>45000&&!speaking&&!busy&&baseExp!=='sleep'&&face.dataset.e===baseExp){setExp('happy',2200);say(pick([`[happy] Hi ${S.user}!`,`[excited] Oh, hello ${S.user}!`,'[happy] There you are!']),false)}}
+
+/* ===================== MICROPHONE ===================== */
+const mic={vol:0,avg:.01,cool:0};let meterT=null,meterNode=null;
+function startMeter(stream){
+  const a=ac(),src=a.createMediaStreamSource(stream),an=a.createAnalyser();an.fftSize=512;src.connect(an);meterNode=src;const buf=new Float32Array(an.fftSize);
+  meterT=setInterval(()=>{an.getFloatTimeDomainData(buf);let s=0;for(const v of buf)s+=v*v;const rms=Math.sqrt(s/buf.length);
+    mic.vol=mic.vol*.8+rms*.2;mic.avg=mic.avg*.995+rms*.005;
+    if(!speaking&&rms>.18&&rms>mic.avg*6+.05&&Date.now()>mic.cool){mic.cool=Date.now()+5000;if(baseExp==='sleep'){interact()}else{interact();setExp('surprised',1100);look.tx=look.ty=0}}},50);
+}
+/* speech recognition ("Hey Looi") */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,recWanted=false,recPaused=false,convoUntil=0,forceListen=false;
+const WAKE=/\b(?:(?:hey|hi|ok|okay)\s+)?(?:looi|louie|louis|lui|looey|lewy|luey|lowey|looie)\b/i;
+function startRec(){
+  if(!SR||!micStream||rec)return;recWanted=true;rec=new SR();rec.continuous=true;rec.interimResults=false;rec.lang=S.set.lang;
+  rec.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)heard(e.results[i][0].transcript.trim())};
+  rec.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){recWanted=false;toast('Speech recognition is blocked in this browser.')}};
+  rec.onend=()=>{rec=null;if(recWanted&&!recPaused)setTimeout(startRec,350)};
+  try{rec.start()}catch{rec=null}
+}
+function stopRec(){recWanted=false;if(rec){try{rec.abort()}catch{}rec=null}}
+function pauseRec(){recPaused=true;if(rec){try{rec.abort()}catch{}}}
+function resumeRec(){recPaused=false;if(recWanted)setTimeout(startRec,450)}
+function heard(t){
+  if(!t||speaking)return;const inWin=Date.now()<convoUntil,m=t.match(WAKE);let cmd=t;
+  if(m)cmd=t.replace(WAKE,'').replace(/^[\s,.!?:-]+/,'').trim();
+  else if(S.set.hey&&!forceListen&&!inWin)return;
+  forceListen=false;convoUntil=Date.now()+25000;interact();
+  if(!cmd){setExp('happy',1500);return say('[happy] Yes?',false)}
+  processInput(cmd,true);
+}
+$('#micBtn').onclick=()=>{
+  if(!SR)return toast('Voice input needs Chrome, Edge or Safari. You can still type.');
+  if(!micStream)return toast('Turn the microphone on in Settings first.');
+  interact();forceListen=true;convoUntil=Date.now()+25000;sfx.wake();toast('Listening… say something',2000);if(!rec)startRec();
+};
+
+/* ===================== MEDIA START / STOP ===================== */
+async function getMedia(c){try{return await navigator.mediaDevices.getUserMedia(c)}catch(e){return {error:e}}}
+async function startMedia(){
+  if(!navigator.mediaDevices?.getUserMedia){toast('Camera/mic need HTTPS (GitHub Pages is HTTPS).',5000);return}
+  stopMedia();const notes=[];
+  if(S.set.cam){const s=await getMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+    if(s.error)notes.push('Camera: '+(s.error.name==='NotAllowedError'?'permission denied':s.error.name));
+    else{camStream=s;cam.srcObject=s;try{await cam.play()}catch{}visionT=setInterval(visionLoop,125);faceT=setInterval(faceLoop,300)}}
+  if(S.set.mic){const s=await getMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
+    if(s.error)notes.push('Mic: '+(s.error.name==='NotAllowedError'?'permission denied':s.error.name));
+    else{micStream=s;startMeter(s);if(SR)startRec();else notes.push('Voice recognition not supported here — use the chat box.')}}
+  $('#sCam').classList.toggle('on',!!camStream);$('#sMic').classList.toggle('on',!!micStream);
+  if(notes.length)toast(notes.join('  ·  '),6000);
+}
+function stopMedia(){
+  [camStream,micStream].forEach(s=>s&&s.getTracks().forEach(t=>t.stop()));camStream=micStream=null;cam.srcObject=null;
+  clearInterval(visionT);clearInterval(faceT);clearInterval(meterT);stopRec();prevG=null;
+  $('#sCam').classList.remove('on');$('#sMic').classList.remove('on');
+}
+
+/* ===================== TILT & SHAKE ===================== */
+let shakeCool=0;
+const onOri=e=>{if(e.gamma==null)return;lookAt(clamp(e.gamma/30,-1,1),clamp(((e.beta||45)-45)/30,-1,1))};
+const onMot=e=>{const a=e.accelerationIncludingGravity;if(!a)return;const m=Math.hypot(a.x||0,a.y||0,a.z||0);
+  if(Math.abs(m-9.8)>20&&Date.now()>shakeCool){shakeCool=Date.now()+4000;interact();setExp('dizzy',3000);say('[dizzy] Whoa... everything is spinning!',false)}};
+async function setTilt(on){
+  removeEventListener('deviceorientation',onOri);removeEventListener('devicemotion',onMot);if(!on)return;
+  try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){toast('Motion permission denied');return}}}catch{}
+  addEventListener('deviceorientation',onOri);addEventListener('devicemotion',onMot);
+}
+
+/* ===================== WAKE LOCK / FULLSCREEN ===================== */
+let wl=null;async function keepAwake(){try{if('wakeLock' in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>wl=null)}}catch{}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S)keepAwake()});
+$('#bFull').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.().catch(()=>toast('Fullscreen not supported here. On iPhone use Share → Add to Home Screen.',4500))};
+
+/* ===================== DRAWER / UI ===================== */
+const drawer=$('#drawer');
+function openDrawer(tab){drawer.classList.add('open');$('#hud').classList.add('show');if(tab)setTab(tab)}
+function closeDrawer(){drawer.classList.remove('open');showHud()}
+function setTab(t){$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));$$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);if(t==='chat'){const l=$('#log');l.scrollTop=l.scrollHeight}}
+$('#bMenu').onclick=()=>drawer.classList.contains('open')?closeDrawer():openDrawer();$('#dClose').onclick=closeDrawer;
+$$('#tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+function addMsg(who,text){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;const l=$('#log');l.appendChild(d);l.scrollTop=l.scrollHeight}
+$('#chatForm').addEventListener('submit',e=>{e.preventDefault();const i=$('#chatIn');const v=i.value.trim();i.value='';if(v){ac();processInput(v)}});
+EMOS.forEach(e=>{const b=document.createElement('button');b.className='sm';b.textContent=({neutral:'😐',happy:'😊',sad:'😢',angry:'😠',surprised:'😮',love:'😍',sleepy:'🥱',wink:'😉',scared:'😨',excited:'🤩',dizzy:'😵',thinking:'🤔'})[e]+' '+e;
+  b.onclick=()=>{interact();setExp(e,5000);if(e==='love')sfx.love();if(e==='angry')sfx.grr();if(e==='surprised')sfx.poke()};$('#expGrid').appendChild(b)});
+$('#aDance').onclick=()=>{dance(12);closeDrawer()};$('#aClock').onclick=()=>showClock(true);$('#aSpin').onclick=()=>{spin();closeDrawer()};
+$('#aPhoto').onclick=()=>{closeDrawer();setTimeout(takePhoto,350)};$('#aSleep').onclick=()=>{closeDrawer();goSleep()};
+$('#aWink').onclick=()=>{interact();setExp('wink',1500);lookAt(-1,.2)};
+$('#tStart').onclick=()=>{const n=parseFloat($('#tMin').value);if(!(n>0))return toast('Enter minutes, e.g. 5');startTimer(Math.round(n*60));toast('Timer started');closeDrawer()};
+
+/* settings binding */
+function applySettings(){
+  face.style.setProperty('--ec',S.set.color);cam.classList.toggle('show',!!S.set.preview&&!!camStream);
+  $$('[data-prov]').forEach(e=>e.classList.toggle('hide',e.dataset.prov!==S.set.provider));
+}
+function bindSettings(){
+  $$('[data-set]').forEach(el=>{const k=el.dataset.set;if(el.type==='checkbox')el.checked=!!S.set[k];else el.value=S.set[k];
+    const h=()=>{const prev=S.set[k];S.set[k]=el.type==='checkbox'?el.checked:el.type==='range'?parseFloat(el.value):el.value;saveData();applySettings();
+      if((k==='cam'||k==='mic'||k==='lang')&&prev!==S.set[k]&&$('#wake').hidden)startMedia();
+      if(k==='tilt')setTilt(S.set.tilt);if(k==='wlModel')wlEngine=wlLoading=null;if(k==='color')$('#clock').style.setProperty('--clk',S.set.color)};
+    el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT'?'change':'input',h)});
+  $('#whoami').textContent='Signed in as '+S.user;
+}
+$('#aiTest').onclick=()=>{closeDrawer();processInput('Say hi to me in five words.')};
+$('#clearChat').onclick=()=>{S.hist=[];saveData();$('#log').innerHTML='';toast('Chat cleared')};
+$('#reWake').onclick=()=>{startMedia()};
+$('#signOut').onclick=signOut;$('#wakeOut').onclick=signOut;
+$('#delAcc').onclick=()=>{if(!confirm('Delete account "'+S.user+'" and all its data from this browser?'))return;const u=LS.get('looi_users',{});delete u[S.user];LS.set('looi_users',u);LS.del('looi_data_'+S.user);signOut()};
+
+/* ===================== ENTER APP / WAKE ===================== */
+function enterApp(name){
+  const users=LS.get('looi_users',{});if(!users[name]){signOut();return}
+  const d=LS.get('looi_data_'+name,{});S={user:name,set:Object.assign({},DEFAULTS,d.set||{}),hist:d.hist||[]};
+  $('#auth').hidden=true;$('#app').hidden=false;$('#wake').hidden=false;goSleep();bindSettings();applySettings();
+  $('#log').innerHTML='';S.hist.slice(-12).forEach(m=>addMsg(m.role==='user'?'u':'a',m.content.replace(/\[\w+\]/g,'').trim()));
+  if(S.set.tilt)setTilt(true);requestAnimationFrame(frame);
+}
+$('#wakeBtn').onclick=async()=>{
+  ac();keepAwake();$('#wake').hidden=true;showHud();
+  baseExp='neutral';setExp('surprised',700);sfx.boot();
+  setTimeout(()=>say(`[happy] Hello ${S.user}! I am Looi, version two point oh.`,false),900);
+  await startMedia();
+  if(S.set.provider==='webllm')getWebllm().catch(e=>toast('On-device brain failed: '+e.message,5000));
+};
+
+/* auto sign-in */
+(function boot(){const n=localStorage.getItem('looi_session')||sessionStorage.getItem('looi_session');if(n&&LS.get('looi_users',{})[n])enterApp(n)})();
+</script>
+</body>
+</html>
