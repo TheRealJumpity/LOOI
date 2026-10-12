@@ -113,6 +113,11 @@ body.idle #touch{cursor:none}
 #hud button:hover{background:#0e2a33}#hud button:active{transform:scale(.94)}
 #bMenu{right:14px}#bFull{right:68px}
 body:not(.ready) #bMenu,body:not(.ready) #bFull,body:not(.ready) #status{display:none}
+/* eyes-only mode: nothing on screen except the eyes (menu buttons appear only when you hover the top-right corner) */
+body.eyesonly #caption,body.eyesonly #status,body.eyesonly #timerBadge,body.eyesonly #zzz,body.eyesonly #cam,body.eyesonly #clock{display:none!important}
+body.eyesonly #hud{opacity:1!important}
+body.eyesonly #hud button{opacity:0;transition:opacity .2s}
+body.eyesonly #hud button:hover,body.eyesonly #hud button:focus-visible{opacity:1}
 #status{position:absolute;left:16px;top:max(20px,env(safe-area-inset-top));display:flex;gap:12px;font-size:12px;color:#58808b;align-items:center}
 #status i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2a3a40;margin-right:5px}
 #status i.on{background:#3ddc84;box-shadow:0 0 8px #3ddc84}
@@ -164,7 +169,7 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
     <div class="face mini" id="authFace" data-e="neutral"><div class="eyes"><div class="eye l"><i class="lt"></i></div><div class="eye r"><i class="lt"></i></div></div></div>
     <h1>LOOI<small>v2.1</small></h1>
     <p class="sub" id="authSub">Sign in to wake up your robot</p>
-    <form id="authForm">
+    <form id="authForm" onsubmit="return false">
       <input type="text" id="u" placeholder="Username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
       <input type="password" id="p" placeholder="Password" autocomplete="current-password">
       <input type="password" id="p2" placeholder="Repeat password" autocomplete="new-password" hidden>
@@ -187,6 +192,7 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
     <button class="sm" id="loadRetry">Try again</button>
     <button class="sm" id="loadSkip">Use tiny offline brain</button>
   </div>
+  <button class="link" id="loadOut" type="button">Sign out</button>
 </div>
 
 <!-- ============ ROBOT ============ -->
@@ -262,6 +268,9 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
     </section>
 
     <section data-pane="set" hidden>
+      <h3>Mode</h3>
+      <div class="row"><span>Eyes-only mode</span><input type="checkbox" data-set="eyes"></div>
+      <p class="note" id="eyesInfo"></p>
       <h3>Look &amp; sound</h3>
       <div class="row"><span>Eye colour</span><input type="color" data-set="color"></div>
       <div class="row"><span>Sound effects</span><input type="checkbox" data-set="sfx"></div>
@@ -271,11 +280,14 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
       <h3>Senses</h3>
       <div class="row"><span>Camera (eyes follow you)</span><input type="checkbox" data-set="cam"></div>
       <div class="row"><span>Show camera preview</span><input type="checkbox" data-set="preview"></div>
+      <div class="row"><span>Eye tracking range</span><input type="range" min="0.5" max="1.4" step="0.05" data-set="range"></div>
       <div class="row"><span>Microphone (“Hey Looi”)</span><input type="checkbox" data-set="mic"></div>
       <div class="row"><span>Speech language</span>
         <select data-set="lang"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="es-ES">Español</option><option value="fr-FR">Français</option><option value="de-DE">Deutsch</option><option value="pt-BR">Português</option><option value="it-IT">Italiano</option><option value="ja-JP">日本語</option></select></div>
       <div class="row"><span>Tilt &amp; shake (phones)</span><input type="checkbox" data-set="tilt"></div>
       <h3>Brain</h3>
+      <div class="row"><span>Brain size</span>
+        <select data-set="brain"><option value="tiny">Tiny · about 140 MB</option><option value="smart">Smarter · about 275–365 MB</option></select></div>
       <p class="note" id="brainInfo"></p>
       <div class="grid"><button class="sm" id="aiTest">Test brain</button><button class="sm" id="clearChat">Clear chat</button><button class="sm" id="reWake">Re-ask perms</button></div>
       <button class="sm" id="dropBrain">Delete downloaded brain</button>
@@ -297,6 +309,11 @@ const rnd=(a,b)=>a+Math.random()*(b-a), pick=a=>a[Math.floor(Math.random()*a.len
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 let toastT; function toast(m,ms=3200){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);if(ms)toastT=setTimeout(()=>t.classList.remove('on'),ms)}
+/* show any unexpected error on screen instead of failing silently */
+function showFatal(m){m=String(m||'unknown error').slice(0,240);console.error(m);toast('Error: '+m,8000);
+  if(!$('#auth').hidden)$('#authErr').textContent='Error: '+m;if(!$('#loading').hidden)$('#loadNote').textContent='Error: '+m}
+addEventListener('error',e=>showFatal(e.message));
+addEventListener('unhandledrejection',e=>showFatal(e.reason&&e.reason.message||e.reason));
 
 /* ===================== TOWER LOADING ANIMATION (pure CSS, loops) ===================== */
 (function buildTower(){
@@ -353,16 +370,17 @@ $('#authForm').addEventListener('submit',async ev=>{
     }
     authErr('');
     (($('#rem').checked)?localStorage:sessionStorage).setItem('looi_session',name);
-    authFace.dataset.e='happy'; $('#authForm').reset(); setTimeout(()=>enterApp(name),550);
+    authFace.dataset.e='happy'; $('#authForm').reset(); setTimeout(()=>{try{enterApp(name)}catch(e){showFatal(e.message)}},550);
   }catch(e){authErr('Something went wrong: '+e.message)}
   finally{btn.disabled=false}
 });
 function signOut(){localStorage.removeItem('looi_session');sessionStorage.removeItem('looi_session');location.reload()}
 
 /* ===================== USER DATA ===================== */
-const DEFAULTS={color:'#bff6ff',sfx:true,voice:true,pitch:1.7,captions:true,cam:true,preview:false,mic:true,lang:'en-US',tilt:false};
+const DEFAULTS={color:'#bff6ff',sfx:true,voice:true,pitch:1.7,captions:true,cam:true,preview:false,mic:true,lang:'en-US',tilt:false,eyes:false,range:1,brain:'tiny'};
 let S=null; // {user,set,hist}
-const saveData=()=>LS.set('looi_data_'+S.user,{set:S.set,hist:S.hist.slice(-30)});
+const DATA_VER=3;   // bumped: older saved chats contained garbled replies, so they are dropped once
+const saveData=()=>LS.set('looi_data_'+S.user,{ver:DATA_VER,set:S.set,hist:S.hist.slice(-30)});
 
 /* ===================== FACE ENGINE ===================== */
 const face=$('#face'),gaze=$('#face .gaze'),eyeEls=$$('#face .eye'),stage=$('#stage');
@@ -410,9 +428,9 @@ let speaking=false,voices=[];
 if('speechSynthesis' in window){const lv=()=>voices=speechSynthesis.getVoices();lv();speechSynthesis.onvoiceschanged=lv}
 function pickVoice(){const l=S.set.lang.slice(0,2);const c=voices.filter(v=>v.lang.toLowerCase().startsWith(l));
   return c.find(v=>/female|samantha|zira|karen|google|aria|jenny/i.test(v.name))||c[0]||null}
-function speak(text){
+function speak(text,force=false){
   return new Promise(res=>{
-    if(!S.set.voice||!('speechSynthesis' in window)){pulseTalk(text.length*55+600);return res()}
+    if((!S.set.voice&&!force)||!('speechSynthesis' in window)){pulseTalk(text.length*55+600);return res()}
     speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();if(v){u.voice=v;u.lang=v.lang}else u.lang=S.set.lang;
     u.pitch=S.set.pitch;u.rate=1.08;speaking=true;face.dataset.talk='1';pauseRec();let done=false;
     const fin=()=>{if(done)return;done=true;speaking=false;delete face.dataset.talk;resumeRec();res()};
@@ -436,15 +454,19 @@ function inferEmo(reply,q){
 }
 function parseEmo(t){const m=t.match(/\[(\w+)\]/);let e=m?m[1].toLowerCase():null;if(e==='mad')e='angry';if(e==='tired')e='sleepy';
   const text=t.replace(/\[\w+\]/g,'').replace(/\s+/g,' ').trim();if(!EMOS.includes(e))e=inferEmo(text,lastQ);return{emo:e,text}}
-async function say(raw,logIt=true){
-  const {emo,text}=parseEmo(raw);if(!text)return;interact();setExp(emo,Math.max(3000,text.length*70));caption(text);
-  if(logIt)addMsg('a',text);
+async function say(raw,logIt=true,opts={}){
+  if(S.set.eyes&&!opts.eyes)return;                       // eyes-only mode: the only thing LOOI ever says is the "looking at" line
+  const {emo,text}=parseEmo(raw);if(!text)return;interact();setExp(emo,Math.max(3000,text.length*70));
+  if(!S.set.eyes){caption(text);if(logIt)addMsg('a',text)}
   if(emo==='love')sfx.love();
-  await speak(text);
+  await speak(text,!!opts.eyes);
 }
 
-/* ===================== BRAIN: tiny on-device model (Transformers.js + SmolLM2-135M) ===================== */
-const MODEL='HuggingFaceTB/SmolLM2-135M-Instruct';   // official repo, ships onnx/ weights (q4f16 ≈118 MB, q8 ≈137 MB)
+/* ===================== BRAIN: small on-device model (Transformers.js + SmolLM2) ===================== */
+const BRAINS={
+  tiny :{id:'HuggingFaceTB/SmolLM2-135M-Instruct',name:'135M',mb:'about 140 MB'},
+  smart:{id:'HuggingFaceTB/SmolLM2-360M-Instruct',name:'360M',mb:'about 275–365 MB'}
+};
 let gen=null,brainState='idle',brainDevice='';
 function setLoad(frac,note,title){
   const w=$('#loadBarWrap'),b=$('#loadBar');
@@ -452,6 +474,7 @@ function setLoad(frac,note,title){
   if(note!=null)$('#loadNote').textContent=note;if(title)$('#loadTitle').textContent=title;
 }
 async function loadBrain(){
+  const kind=S.set.brain in BRAINS?S.set.brain:'tiny',B=BRAINS[kind];
   const files={};
   const onProg=p=>{
     if(p.status==='progress'&&p.total){files[p.file]={l:p.loaded,t:p.total}}
@@ -463,16 +486,17 @@ async function loadBrain(){
   const tf=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3');
   tf.env.allowLocalModels=false;tf.env.useBrowserCache=true;
   try{tf.env.backends.onnx.wasm.proxy=true}catch{}
-  // smallest file that works: 4-bit/fp16 (~118 MB) on GPUs with fp16, otherwise 8-bit (~137 MB) on the CPU
+  // 8-bit on the CPU is the most faithful for the tiny model (4-bit damages small models a lot).
+  // The bigger model can use 4-bit on the graphics chip because it has more headroom.
   const tries=[];
-  try{const ad=navigator.gpu&&await navigator.gpu.requestAdapter();if(ad&&ad.features.has('shader-f16'))tries.push({device:'webgpu',dtype:'q4f16'})}catch{}
+  if(kind==='smart'){try{const ad=navigator.gpu&&await navigator.gpu.requestAdapter();if(ad&&ad.features.has('shader-f16'))tries.push({device:'webgpu',dtype:'q4f16'})}catch{}}
   tries.push({device:'wasm',dtype:'q8'});
   let lastErr=null;
   for(const t of tries){
     try{
       for(const k in files)delete files[k];
       setLoad(null,t.device==='webgpu'?'Starting brain on your graphics chip…':'Starting brain on your processor…');
-      gen=await tf.pipeline('text-generation',MODEL,{dtype:t.dtype,device:t.device,progress_callback:onProg});
+      gen=await tf.pipeline('text-generation',B.id,{dtype:t.dtype,device:t.device,progress_callback:onProg});
       brainDevice=t.device;lastErr=null;break;
     }catch(e){lastErr=e;gen=null;console.warn('Brain attempt failed',t,e)}
   }
@@ -480,62 +504,149 @@ async function loadBrain(){
   setLoad(null,'Warming up…');
   await gen([{role:'user',content:'hi'}],{max_new_tokens:3,do_sample:false});
 }
-const SYSTEM=u=>`You are Looi, a tiny friendly desk robot with expressive eyes. The person talking to you is called ${u}. Answer in one or two short, cheerful sentences. Never use emojis.`;
-const FEW=u=>[{role:'user',content:'hi'},{role:'assistant',content:`Hi ${u}! I'm so happy to see you.`},{role:'user',content:'what is two plus two'},{role:'assistant',content:"That's four! I love numbers."}];
+
+/* ---- prompt ---- */
+const SYSTEM=u=>`You are Looi, a small, kind and cheerful robot friend who lives on ${u}'s desk. You are always warm, polite and encouraging. You never insult anyone and never answer rudely. Answer in one or two short, simple, friendly sentences in plain English. If you do not know something, say so kindly. Do not use emojis or lists.`;
+const FEW=u=>[{role:'user',content:'hi'},{role:'assistant',content:`Hi ${u}! It is so nice to see you.`},{role:'user',content:'thanks'},{role:'assistant',content:'You are very welcome! I am happy to help.'}];
+
+/* ---- clean + validate what the model says, so garbage never reaches the screen ---- */
 function tidy(t){
-  t=t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').replace(/\*+/g,'').replace(/\s+/g,' ').trim();
-  const parts=t.split(/(?<=[.!?])\s+/).slice(0,2).join(' ');return parts.slice(0,220).trim();
+  t=t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').replace(/\*+|_{2,}|#+/g,'').replace(/^\s*(looi|assistant)\s*[:\-]\s*/i,'').replace(/\s+/g,' ').trim();
+  const sents=t.match(/[^.!?]+[.!?]+/g);
+  if(sents)t=sents.slice(0,2).map(x=>x.trim()).join(' ');   // whole sentences only: drops a cut-off tail
+  t=t.slice(0,220).trim();
+  if(t&&!/[.!?]$/.test(t))t+='.';
+  return t;
 }
+const RUDE=/\b(no sir|no thanks to you|shut up|stupid|idiot|dumb|hate you|go away|leave me alone|damn|hell|fuck\w*|shit\w*|ugly|loser|moron|screw you|i don'?t care|whatever|boring|annoying)\b/i;
+const NUMWORD=/^(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million)/;
+function sane(t){
+  if(!t||t.length<3||t.length>240)return false;
+  if(RUDE.test(t))return false;
+  const cjk=/[぀-ヿ一-鿿가-힯]/.test(t);
+  const letters=(t.match(/\p{L}/gu)||[]).length;
+  if(letters/t.length<.62)return false;                      // symbol / number soup
+  if(!cjk){
+    const words=t.split(/\s+/);
+    if(words.some(w=>w.length>17))return false;              // words glued together
+    const lw=words.map(w=>w.toLowerCase().replace(/[^\p{L}']/gu,'')),cnt={};
+    for(const w of lw){if(w.length>2){cnt[w]=(cnt[w]||0)+1;if(cnt[w]>=4)return false}}   // looping
+    if(lw.filter(w=>NUMWORD.test(w)).length>3)return false;  // "seven sixths of eleven nine three…"
+    if(words.length<2)return false;
+  }
+  return true;
+}
+
+/* ---- generation ---- */
+async function runGen(msgs,opts){const out=await gen(msgs,opts);return tidy(out[0].generated_text.at(-1).content||'')}
 async function generate(){
-  const h=S.hist.slice(-5);while(h.length&&h[0].role!=='user')h.shift();
+  const h=S.hist.slice(-4);while(h.length&&h[0].role!=='user')h.shift();
   const msgs=[{role:'system',content:SYSTEM(S.user)},...FEW(S.user),...h];
-  const out=await gen(msgs,{max_new_tokens:56,do_sample:true,temperature:.7,top_p:.9,repetition_penalty:1.15});
-  const t=tidy(out[0].generated_text.at(-1).content||'');if(!t)throw new Error('empty reply');return t;
+  // Careful, low-temperature sampling. (The old high repetition penalty is what produced the glued-together word salad.)
+  const base={max_new_tokens:48,no_repeat_ngram_size:3};
+  let t=await runGen(msgs,{...base,do_sample:true,temperature:.45,top_k:30,top_p:.9});
+  if(sane(t))return t;
+  const last=h.length?h[h.length-1].content:'hi';           // second try: no history, deterministic
+  t=await runGen([{role:'system',content:SYSTEM(S.user)},{role:'user',content:last}],{...base,do_sample:false});
+  if(sane(t))return t;
+  throw new Error('unclear');
+}
+
+/* ---- instant, always-kind answers for the things tiny models get wrong ---- */
+const NUMW={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20};
+function tryMath(raw){
+  let s=raw.toLowerCase().replace(/,/g,'');
+  s=s.replace(/\b(what'?s|what is|whats|calculate|compute|how much is|equals?|solve|tell me|please|the answer to)\b/g,' ').replace(/[?=]/g,' ');
+  s=s.replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b/g,m=>NUMW[m]);
+  s=s.replace(/\bplus\b/g,'+').replace(/\bminus\b/g,'-').replace(/\b(times|multiplied by|x)\b/g,'*').replace(/\b(divided by|over)\b/g,'/')
+     .replace(/\bto the power of\b/g,'**').replace(/×/g,'*').replace(/÷/g,'/').replace(/\^/g,'**').replace(/\bmod(ulo)?\b/g,'%').replace(/\s+/g,' ').trim();
+  if(!/^[\d\s+\-*\/().%]+$/.test(s)||!/\d\s*(\*\*|[+\-*\/%])\s*\(?\s*-?\d/.test(s)||s.length>60||/\*\*\s*\(?\s*\d{3,}/.test(s))return null;
+  try{const v=Function('"use strict";return ('+s+')')();
+    if(typeof v!=='number')return null;
+    if(!isFinite(v))return /\/\s*0(?![\d.])/.test(s)?'div0':null;
+    return Math.abs(v)>=1e15?null:+v.toFixed(6)}catch{return null}
+}
+const JOKES=['[wink] Why did the robot go on holiday? It needed to recharge!','[happy] What do you call a sleepy robot? A nap-bot!','[wink] Why was the computer cold? It left its Windows open!','[happy] What is a robot\'s favourite snack? Micro-chips!','[wink] Why did the robot cross the road? It was programmed by the chicken!','[happy] How does a robot say hello? Hi, bye-nary!'];
+function quickReply(text){
+  const l=text.toLowerCase().replace(/[^\p{L}\p{N}\s'?!]/gu,' ').replace(/\s+/g,' ').trim(),w=l?l.split(' ').length:0,u=S.user;
+  const m=tryMath(text);
+  if(m!==null)return m==='div0'?'[surprised] Oh no, dividing by zero would break my brain!':`[excited] ${pick(['That is','It is','The answer is'])} ${m}!`;
+  if(w<=4&&/^(hi|hello|hey|yo|hiya|howdy|sup|good (morning|afternoon|evening))\b/.test(l))return pick([`[happy] Hi ${u}! It is so nice to see you.`,`[excited] Hello ${u}! I am so happy you are here.`,`[happy] Hey ${u}! How are you today?`]);
+  if(w<=7&&/\bhow are (you|u)\b|\bhow('s| is) it going\b|\bwhat'?s up\b/.test(l))return pick(['[happy] I am doing great, thank you for asking! How are you?','[excited] I feel wonderful now that you are here! How about you?']);
+  if(/\b(your name|who are you|what are you)\b/.test(l))return '[happy] I am Looi, a tiny robot friend who lives on your desk!';
+  if(/\bwho (made|built|created) you\b/.test(l))return '[happy] A kind human built me out of code, so I could keep you company!';
+  if(/^(help|what can you do)\b/.test(l))return '[excited] I can chat, dance, tell jokes, set timers, show the clock and take photos. Just say Hey Looi!';
+  if(w<=6&&/\b(thanks|thank you|thx|ty|cheers)\b/.test(l))return pick(['[happy] You are very welcome!','[love] Anytime, friend! Happy to help.','[happy] My pleasure!']);
+  if(w<=5&&/^(bye|goodbye|see you|see ya|cya|later)\b/.test(l))return '[happy] Bye bye! Come back soon, I will miss you!';
+  if(/\b(i love you|love you|i like you)\b/.test(l))return `[love] Aww, I love you too, ${u}!`;
+  if(/\b(you are|you're|youre|ur)\b.*\b(cute|good|great|awesome|smart|nice|amazing|funny|cool|best)\b/.test(l))return '[love] Aww, thank you! That makes me so happy.';
+  if(/\b(you are|you're|youre|ur)\b.*\b(stupid|dumb|bad|useless|ugly|annoying|trash|garbage|terrible|worst)\b|\b(stupid|dumb|idiot|shut up)\b/.test(l))return '[sad] Oh... I am sorry. I am still learning, and I will try to do better.';
+  if(/\bjoke\b/.test(l))return pick(JOKES);
+  if(/\b(i am|i'm|im|feeling|i feel)\b.*\b(sad|lonely|down|tired|upset|stressed|anxious)\b/.test(l))return '[sad] I am sorry you feel that way. I am right here with you, and I think you are doing great.';
+  if(/\bhow old are you\b|\byour age\b/.test(l))return '[happy] I am brand new, version two point one!';
+  if(/\bare you (real|alive)\b/.test(l))return '[thinking] I am a little robot made of code, but my feelings for you feel pretty real!';
+  if(/^(wth|wtf|what the .*)$/.test(l))return '[surprised] Oops, did I say something strange? Sorry, I am still learning!';
+  if(/^(what is it|what|huh|why|ok|okay|lol|hmm+|k)$/.test(l))return '[thinking] Hmm, can you tell me a bit more?';
+  return null;
 }
 function offline(t){const l=t.toLowerCase();
-  if(/\b(hi|hello|hey|yo)\b/.test(l))return pick(['[happy] Hi hi! I am so happy to see you!','[excited] Hello friend!']);
-  if(/your name|who are you/.test(l))return '[happy] I am Looi, your tiny desk buddy!';
-  if(/how are you/.test(l))return '[happy] I am great! My eyes are working and you are here.';
-  if(/joke/.test(l))return pick(['[wink] Why did the robot go on holiday? It needed to recharge!','[happy] What do you call a sleepy robot? A nap-bot!']);
-  if(/love you|i like you/.test(l))return '[love] Aww, I love you too!';
-  if(/thank/.test(l))return '[happy] Anytime, friend!';
-  if(/sad|tired|bad day|lonely/.test(l))return '[sad] Aw, I am right here with you.';
-  return pick(['[thinking] Hmm, I am not sure about that one, but I am listening!','[happy] I did not get that, but I like talking with you!']);
+  if(/\b(sad|tired|bad day|lonely)\b/.test(l))return '[sad] Aw, I am right here with you.';
+  return pick(['[thinking] Hmm, I am not sure about that one. Could you ask me another way?','[happy] I did not quite get that, but I really like talking with you!','[thinking] That is a tricky one for a tiny robot like me!']);
 }
 function aiDot(on){$('#sAi').classList.toggle('on',on)}
 let busy=false;
 async function ask(text){
-  if(busy)return;busy=true;lastQ=text;setExp('thinking');setSrc('cue',.55,-.8,120000);
-  S.hist.push({role:'user',content:text});let reply;
-  try{if(!gen)throw new Error('offline');reply=await generate();aiDot(true)}
-  catch(e){reply=offline(text);if(gen){aiDot(false);toast('Brain hiccup ('+e.message+'), using a quick answer')}}
-  clearSrc('cue');S.hist.push({role:'assistant',content:reply.replace(/\[\w+\]/g,'').trim()});saveData();busy=false;
-  await say(reply);
+  if(busy)return;busy=true;lastQ=text;
+  try{
+    S.hist.push({role:'user',content:text});
+    let reply=quickReply(text);
+    if(!reply){
+      setExp('thinking');setSrc('cue',.55,-.8,120000);
+      try{if(!gen)throw new Error('offline');reply=await generate();aiDot(true)}
+      catch(e){reply=offline(text);if(gen&&e.message!=='unclear'){aiDot(false);toast('Brain hiccup ('+e.message+'), using a quick answer')}}
+      clearSrc('cue');
+    }
+    S.hist.push({role:'assistant',content:reply.replace(/\[\w+\]/g,'').trim()});S.hist=S.hist.slice(-12);saveData();
+    await say(reply);
+  }finally{busy=false}
 }
 function updateBrainInfo(){
+  const B=BRAINS[S.set.brain in BRAINS?S.set.brain:'tiny'];
   $('#brainInfo').textContent=brainState==='ready'
-    ?`SmolLM2 135M (about 120–140 MB), running on this device using ${brainDevice==='webgpu'?'your graphics chip':'your processor'}. Cached in this browser after the first download. It is tiny, so answers are short and simple.`
-    :'Tiny offline brain (keyword replies). Reload the page to try loading the real model again.';
+    ?`SmolLM2 ${B.name} (${B.mb}), running on this device using ${brainDevice==='webgpu'?'your graphics chip':'your processor'}. Cached after the first download. Greetings, thanks and maths are answered instantly without the model.`
+    :'Tiny offline brain (keyword replies). Reload the page or switch the brain size to try loading the model again.';
   aiDot(brainState==='ready');
 }
+let loadId=0,slowT=null,woke=false;
 async function startLoading(){
+  const my=++loadId;
   document.body.classList.remove('ready');$('#loading').hidden=false;$('#loadBtns').hidden=true;setLoad(null,'Starting…',"Building LOOI's brain…");
+  clearTimeout(slowT);slowT=setTimeout(()=>{if(my===loadId&&!$('#loading').hidden)$('#loadBtns').hidden=false},20000);   // never trap the user on this screen
   loadVision();
   try{await loadBrain();brainState='ready'}
   catch(e){
+    if(my!==loadId)return;
     brainState='error';console.error(e);
     setLoad(null,`${e.message||e}. The first load needs an internet connection and a recent Chrome, Edge, Firefox or Safari.`,'Brain build hit a snag');
     $('#loadBarWrap').classList.remove('ind');$('#loadBtns').hidden=false;return;
   }
+  if(my!==loadId)return;
   finishLoading();
 }
-function finishLoading(){$('#loading').hidden=true;document.body.classList.add('ready');$('#wake').hidden=false;updateBrainInfo()}
+function finishLoading(){clearTimeout(slowT);$('#loading').hidden=true;document.body.classList.add('ready');if(!woke)$('#wake').hidden=false;updateBrainInfo()}
+async function switchBrain(){
+  try{if(gen&&gen.dispose)await gen.dispose()}catch{}
+  gen=null;brainState='idle';closeDrawer();startLoading();
+}
 $('#loadRetry').onclick=startLoading;
-$('#loadSkip').onclick=()=>{brainState='offline';finishLoading()};
+$('#loadSkip').onclick=()=>{loadId++;brainState='offline';finishLoading()};
+$('#loadOut').onclick=signOut;
 
 /* ===================== COMMANDS ===================== */
 function processInput(text,fromVoice=false){
-  text=text.trim();if(!text)return;interact();addMsg('u',text);if(fromVoice)caption(text,'you');
+  text=text.trim();if(!text)return;
+  if(S.set.eyes){toast('Eyes-only mode is on. Turn it off in Settings to chat.');return}
+  interact();addMsg('u',text);if(fromVoice)caption(text,'you');
   const l=text.toLowerCase().replace(/[.!?]+$/,'');
   const exp=l.match(/\b(?:be|look|feel|show(?: me)?|make a|do a|act)\s+(?:a\s+)?(happy|sad|angry|mad|surprised|love|loving|sleepy|tired|wink|scared|excited|dizzy)\b/);
   const tm=l.match(/timer.*?(\d+)\s*(second|sec|minute|min|hour|hr)/);
@@ -591,15 +702,25 @@ $$('#dpad [data-dir]').forEach(b=>{const d=b.dataset.dir;const on=e=>{e.preventD
 $('#dCenter').onclick=goHome;$('#dHome').onclick=goHome;$('#dSpin').onclick=spin;$('#dDance').onclick=()=>dance(12);
 
 /* ===================== MAIN FRAME LOOP ===================== */
-let rafOn=false,lastT=0;
+let rafOn=false,lastT=0,fc=0,ampX=0,ampY=0,tAmpX=0,tAmpY=0;
+/* How far the eyes may travel (px): almost the whole free space on the screen, scaled by the "tracking range" setting. */
+function calcAmp(snap){
+  const w=gaze.offsetWidth,h=gaze.offsetHeight;if(!w||!h)return;
+  const r=S?+S.set.range||1:1,vm=Math.min(innerWidth,innerHeight);
+  tAmpX=Math.max((innerWidth-w)/2*.92,vm*.1)*r;tAmpY=Math.max((innerHeight-h)/2*.92,vm*.07)*r;
+  if(snap){ampX=tAmpX;ampY=tAmpY}
+}
+addEventListener('resize',()=>calcAmp(true));
 function frame(t){
   const dt=Math.min(.05,(t-lastT)/1000||.016);lastT=t;const now=performance.now();
   const U=Math.min(innerWidth,innerHeight)*.012;
+  if((fc++%15)===0)calcAmp(false);
+  ampX+=(tAmpX-ampX)*.12;ampY+=(tAmpY-ampY)*.12;
   // pick where to look
   let tg=pickTarget(now);
   if(tg){lastTarget=now}
   else if(baseExp==='sleep'){look.idleX=look.idleY=0}
-  else if(now>nextGlance&&now-lastTarget>2200){look.idleX=Math.random()<.35?0:rnd(-.9,.9);look.idleY=Math.random()<.4?0:rnd(-.55,.45);nextGlance=now+rnd(1400,4200)}
+  else if(now>nextGlance&&now-lastTarget>2200){look.idleX=Math.random()<.35?0:rnd(-.4,.4);look.idleY=Math.random()<.4?0:rnd(-.25,.22);nextGlance=now+rnd(1400,4200)}
   const tx=tg?tg.x:look.idleX,ty=tg?tg.y:look.idleY;
   // critically-damped-ish smoothing (frame-rate independent)
   const k=1-Math.exp(-dt*(tg&&tg===src.drag?16:9));
@@ -607,7 +728,7 @@ function frame(t){
   const vx=(look.x-ox)/dt,vy=(look.y-oy)/dt;look.vx+=(vx-look.vx)*.3;look.vy+=(vy-look.vy)*.3;
   // subtle life-like drift
   const nx=Math.sin(now/1900)*.025,ny=Math.cos(now/2300)*.02;
-  gaze.style.translate=`${(look.x+nx)*9*U}px ${(look.y+ny)*6.5*U}px`;
+  gaze.style.translate=`${(look.x+nx)*ampX}px ${(look.y+ny)*ampY}px`;
   // squash & stretch while the eyes move quickly
   const sx=clamp(Math.abs(look.vx)*.018,0,.1),sy=clamp(Math.abs(look.vy)*.018,0,.08);
   gaze.style.scale=`${1+sx-sy*.5} ${1-sx*.6+sy*.5}`;gaze.style.rotate=`${clamp(look.vx*.25,-3,3)}deg`;
@@ -662,10 +783,11 @@ function loadVision(){
 }
 function feedTrack(cx,cy,mirror=true){
   // cx,cy in 0..1 of the raw camera frame. Raw frames are not mirrored, so flip X so the eyes look toward the person.
-  let x=(mirror?-1:1)*(cx-.5)*2.6,y=(cy-.45)*2.2;x=clamp(x,-1,1);y=clamp(y,-1,1);
+  // High gain: moving your head across about 60% of the camera frame already sends the eyes to the screen edge.
+  let x=(mirror?-1:1)*(cx-.5)*3.4,y=(cy-.5)*3.4;x=clamp(x,-1,1);y=clamp(y,-1,1);
   if(!haveSm){smX=x;smY=y;haveSm=true}else{
     const dx=x-smX,dy=y-smY;
-    if(Math.abs(dx)>.04)smX+=dx*.28; if(Math.abs(dy)>.05)smY+=dy*.28;   // dead-band + low-pass: no jitter
+    if(Math.abs(dx)>.015)smX+=dx*.45; if(Math.abs(dy)>.02)smY+=dy*.45;   // tiny dead-band + light low-pass: responsive but not jittery
   }
   setSrc('face',smX,smY,1400);
 }
@@ -729,6 +851,7 @@ function heardFinal(t){
   // anything else is ignored: LOOI only reacts after "Hey Looi"
 }
 $('#micBtn').onclick=()=>{
+  if(S.set.eyes)return toast('Eyes-only mode is on. Turn it off in Settings to talk to LOOI.');
   if(!SR)return toast('Voice input needs Chrome, Edge or Safari. You can still type.');
   if(!micStream)return toast('Turn the microphone on in Settings first.');
   interact();awaiting=true;listenUntil=Date.now()+9000;sfx.listen();toast('Listening… say your request',2000);if(!rec)startRec();
@@ -744,7 +867,7 @@ async function startMedia(){
     else{camStream=s;cam.srcObject=s;try{await cam.play()}catch{}bg=null;haveSm=false;visionT=setInterval(visionLoop,125);faceT=setInterval(faceLoop,66)}}
   if(S.set.mic){const s=await getMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
     if(s.error)notes.push('Mic: '+(s.error.name==='NotAllowedError'?'permission denied':s.error.name));
-    else{micStream=s;startMeter(s);if(SR)startRec();else notes.push('Voice recognition is not supported in this browser. Use the chat box.')}}
+    else{micStream=s;startMeter(s);if(SR){if(!S.set.eyes)startRec()}else notes.push('Voice recognition is not supported in this browser. Use the chat box.')}}
   $('#sCam').classList.toggle('on',!!camStream);$('#sMic').classList.toggle('on',!!micStream);applySettings();
   if(notes.length)toast(notes.join('  ·  '),6000);
 }
@@ -764,6 +887,48 @@ async function setTilt(on){
   try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){toast('Motion permission denied');return}}}catch{}
   addEventListener('deviceorientation',onOri);addEventListener('devicemotion',onMot);
 }
+
+/* ===================== EYES-ONLY: "Oh, what's that you're looking at in ___?" =====================
+   A web page cannot see which app is in front, so there are two sources:
+   1) looi-helper.bat (optional, Windows, nothing to install) reports the front app's name on 127.0.0.1:8765
+   2) without it, LOOI only notices that you clicked away from this window and says the line without the app name. */
+const HELPER_URL='http://127.0.0.1:8765/app';
+const ew={app:'',since:0,pending:false,lastSay:0,helper:false,fails:0,timer:null,blurT:null};
+const appLine=name=>name?`Oh, what's that you're looking at in ${name}?`:"Oh, what's that you're looking at?";
+function sayLooking(name){
+  ew.lastSay=Date.now();interact();setSrc('cue',pick([-.8,.8]),.3,3500);
+  return say('[surprised] '+appLine(name),false,{eyes:true});
+}
+function updateEyesInfo(){
+  const el=$('#eyesInfo');if(!el||!S)return;
+  el.textContent=!S.set.eyes
+    ?'Hides everything except the eyes. LOOI stays quiet and only says “Oh, what’s that you’re looking at in …?” when you switch apps. Press M (or hover the top-right corner) to bring the menu back.'
+    :(ew.helper?`App helper connected. Front app: ${ew.app||'…'}.`
+      :'App helper not found, so he only knows when you click away from this window and will say “Oh, what’s that you’re looking at?” without the app name. That is fine as it is; the app name is an optional extra (Windows: double-click looi-helper.bat).');
+}
+async function pollApp(){
+  clearTimeout(ew.timer);
+  if(!S||!S.set.eyes||!document.body.classList.contains('ready')){ew.timer=setTimeout(pollApp,3000);return}
+  let name=null;
+  try{
+    const c=new AbortController(),to=setTimeout(()=>c.abort(),1500);
+    const r=await fetch(HELPER_URL,{cache:'no-store',signal:c.signal});clearTimeout(to);
+    if(r.ok){const j=await r.json();name=String(j.app||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,40);ew.helper=true;ew.fails=0}
+  }catch{ew.fails++;if(ew.fails>=2)ew.helper=false}
+  const now=Date.now();
+  if(ew.helper&&name!==null){
+    if(name!==ew.app){ew.app=name;ew.since=now;ew.pending=!!name}
+    if(document.hasFocus())ew.pending=false;                    // you are looking at LOOI itself
+    else if(ew.pending&&name&&now-ew.since>=2500&&now-ew.lastSay>=20000&&!speaking&&!busy){ew.pending=false;sayLooking(name)}
+  }
+  updateEyesInfo();
+  ew.timer=setTimeout(pollApp,ew.helper?1500:(ew.fails>3?8000:3000));
+}
+addEventListener('blur',()=>{
+  if(!S||!S.set.eyes||ew.helper)return;clearTimeout(ew.blurT);
+  ew.blurT=setTimeout(()=>{if(S.set.eyes&&!ew.helper&&!document.hasFocus()&&Date.now()-ew.lastSay>=30000)sayLooking('')},3000);
+});
+addEventListener('focus',()=>clearTimeout(ew.blurT));
 
 /* ===================== WAKE LOCK / FULLSCREEN / KEYBOARD ===================== */
 let wl=null;async function keepAwake(){try{if('wakeLock' in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>wl=null)}}catch{}}
@@ -798,12 +963,22 @@ $('#aPhoto').onclick=()=>{closeDrawer();setTimeout(takePhoto,350)};$('#aSleep').
 $('#aWink').onclick=()=>{interact();setExp('wink',1500);setSrc('cue',-.9,.2,1500)};
 $('#tStart').onclick=()=>{const n=parseFloat($('#tMin').value);if(!(n>0))return toast('Enter minutes, e.g. 5');startTimer(Math.round(n*60));toast('Timer started');closeDrawer()};
 
-function applySettings(){face.style.setProperty('--ec',S.set.color);cam.classList.toggle('show',!!S.set.preview&&!!camStream)}
+function applySettings(){face.style.setProperty('--ec',S.set.color);cam.classList.toggle('show',!!S.set.preview&&!!camStream);
+  document.body.classList.toggle('eyesonly',!!S.set.eyes);calcAmp(false);updateEyesInfo()}
+/* eyes-only side effects: stop listening for "Hey Looi", close the clock; resume listening when switched off */
+function applyEyes(){
+  const on=!!S.set.eyes;document.body.classList.toggle('eyesonly',on);
+  if(on){stopRec();showClock(false);dirs.clear();window.speechSynthesis?.cancel()}
+  else if(micStream&&SR)startRec();
+  updateEyesInfo();
+}
 function bindSettings(){
   $$('[data-set]').forEach(el=>{const k=el.dataset.set;if(el.type==='checkbox')el.checked=!!S.set[k];else el.value=S.set[k];
     const h=()=>{const prev=S.set[k];S.set[k]=el.type==='checkbox'?el.checked:el.type==='range'?parseFloat(el.value):el.value;saveData();applySettings();
       if((k==='cam'||k==='mic'||k==='lang')&&prev!==S.set[k]&&$('#wake').hidden)startMedia();
-      if(k==='tilt')setTilt(S.set.tilt);if(k==='color')$('#clock').style.setProperty('--clk',S.set.color)};
+      if(k==='tilt')setTilt(S.set.tilt);if(k==='color')$('#clock').style.setProperty('--clk',S.set.color);
+      if(k==='eyes'){applyEyes();if(S.set.eyes){closeDrawer();toast('Eyes-only mode on. Press M, or hover the top-right corner, for the menu.',5000)}}
+      if(k==='brain'&&prev!==S.set.brain)switchBrain()};
     el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT'?'change':'input',h)});
   $('#whoami').textContent='Signed in as '+S.user;
 }
@@ -818,20 +993,21 @@ $('#delAcc').onclick=()=>{if(!confirm('Delete account "'+S.user+'" and all its d
 /* ===================== ENTER APP / WAKE ===================== */
 function enterApp(name){
   const users=LS.get('looi_users',{});if(!users[name]){signOut();return}
-  const d=LS.get('looi_data_'+name,{});S={user:name,set:Object.assign({},DEFAULTS,d.set||{}),hist:d.hist||[]};
-  $('#auth').hidden=true;$('#app').hidden=false;$('#wake').hidden=true;goSleep();bindSettings();applySettings();
+  const d=LS.get('looi_data_'+name,{});S={user:name,set:Object.assign({},DEFAULTS,d.set||{}),hist:(d.ver>=DATA_VER&&Array.isArray(d.hist))?d.hist:[]};
+  $('#auth').hidden=true;$('#app').hidden=false;$('#wake').hidden=true;goSleep();bindSettings();applySettings();applyEyes();
+  requestAnimationFrame(()=>calcAmp(true));
   $('#log').innerHTML='';S.hist.slice(-12).forEach(m=>addMsg(m.role==='user'?'u':'a',m.content.replace(/\[\w+\]/g,'').trim()));
   if(S.set.tilt)setTilt(true);
-  if(!rafOn){rafOn=true;requestAnimationFrame(frame)}
+  if(!rafOn){rafOn=true;requestAnimationFrame(frame);pollApp()}
   startLoading();
 }
 $('#wakeBtn').onclick=async()=>{
-  ac();keepAwake();$('#wake').hidden=true;showHud();
+  woke=true;ac();keepAwake();$('#wake').hidden=true;showHud();
   baseExp='neutral';setExp('surprised',700);sfx.boot();
   setTimeout(()=>say(`[happy] Hello ${S.user}! I am Looi. Say Hey Looi any time.`,false),900);
   await startMedia();
 };
-(function boot(){const n=localStorage.getItem('looi_session')||sessionStorage.getItem('looi_session');if(n&&LS.get('looi_users',{})[n])enterApp(n)})();
+(function boot(){try{const n=localStorage.getItem('looi_session')||sessionStorage.getItem('looi_session');if(n&&LS.get('looi_users',{})[n])enterApp(n)}catch(e){showFatal(e.message)}})();
 </script>
 </body>
 </html>
