@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<title>LOOI v2.1</title>
+<title>LOOI v2.2</title>
 <style>
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#000;color:#dffaff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
@@ -16,7 +16,7 @@ button{cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #4fd9f0;outline-offset:2px}
 
 /* ---------- THE FACE ---------- */
-.face{--u:1.2vmin;--spring:cubic-bezier(.34,1.56,.64,1);--ec:#bff6ff;--ect:var(--ec);--ew:calc(26*var(--u));--eh:calc(28*var(--u));--er:50%;--ltY:-115%;--ltR:0deg;--dy:0;
+.face{--u:1.2vmin;--spring:cubic-bezier(.22,.8,.26,1);--ec:#bff6ff;--ect:var(--ec);--ew:calc(26*var(--u));--eh:calc(28*var(--u));--er:50%;--ltY:-115%;--ltR:0deg;--dy:0;
   display:flex;align-items:center;justify-content:center}
 .face.mini{--u:1.9px;margin:0 auto 6px;height:70px}
 .gaze{display:flex;align-items:center;justify-content:center;will-change:translate,scale,rotate}
@@ -35,7 +35,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .face[data-e=wink] .eye.r{background:transparent}
 .face[data-e=wink] .eye.r::before{opacity:1;scale:1 1}
 .face[data-e=happy]{--dy:-1}
-.face[data-e=excited]{--dy:-1;animation:hop .38s ease-in-out infinite}
+.face[data-e=excited]{--dy:-1;animation:hop 1.4s ease-in-out infinite}
 .face[data-e=angry]{--ect:#ffb9ae}
 .face[data-e=angry],.face[data-e=sad],.face[data-e=sleepy]{--ltY:-46%}
 .face[data-e=angry]{--ltR:20deg;--dy:1}
@@ -43,23 +43,23 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .face[data-e=sleepy]{--ltY:-36%;--ltR:0deg;--dy:2}
 .face[data-e=surprised]{--ew:calc(28*var(--u));--eh:calc(32*var(--u));--dy:-1}
 .face[data-e=scared]{--ew:calc(19*var(--u));--eh:calc(22*var(--u))}
-.face[data-e=scared] .eyes{animation:shake .12s linear infinite}
+.face[data-e=scared] .eyes{animation:shake .18s linear infinite}
 .face[data-e=thinking] .eye.l{height:calc(var(--eh)*.78);width:calc(var(--ew)*.92)}
 .face[data-e=thinking] .eye.r{width:calc(var(--ew)*1.06)}
 .face[data-e=love]{--ew:calc(27*var(--u));--eh:calc(24*var(--u))}
 .face[data-e=love] .eye{background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 29'%3E%3Cpath fill='%23ff5c93' d='M16 28C4 18 0 12 0 8 0 3 4 0 8.5 0 12 0 14.5 2 16 5 17.5 2 20 0 23.5 0 28 0 32 3 32 8c0 4-4 10-16 20z'/%3E%3C/svg%3E") center/contain no-repeat;
-  filter:drop-shadow(0 0 calc(2*var(--u)) #ff4d8d);animation:beat .7s ease-in-out infinite}
+  filter:drop-shadow(0 0 calc(2*var(--u)) #ff4d8d);animation:beat 1.2s ease-in-out infinite}
 .face[data-e=dizzy]{--ew:calc(27*var(--u));--eh:calc(27*var(--u))}
 .face[data-e=dizzy] .eye{background:repeating-radial-gradient(circle,var(--ec) 0 calc(1.3*var(--u)),#000 calc(1.3*var(--u)) calc(2.6*var(--u)));animation:spin .7s linear infinite}
 .face[data-e=sleep] .eye{scale:1 .06;filter:none;opacity:.7}
-.face[data-listen] .eyes{animation:breathe 1.1s ease-in-out infinite}
-.face[data-talk] .eyes{animation:talk .27s ease-in-out infinite alternate}
-@keyframes hop{50%{translate:0 -2.5vmin}}
-@keyframes shake{25%{rotate:-2.5deg}75%{rotate:2.5deg}}
-@keyframes beat{50%{scale:1.13}}
+.face[data-listen] .eyes{animation:breathe 2.4s ease-in-out infinite}
+.face[data-talk] .eyes{animation:talk .7s ease-in-out infinite alternate}
+@keyframes hop{50%{translate:0 -1.1vmin}}
+@keyframes shake{25%{rotate:-1.2deg}75%{rotate:1.2deg}}
+@keyframes beat{50%{scale:1.06}}
 @keyframes spin{to{rotate:360deg}}
-@keyframes breathe{50%{scale:1.07}}
-@keyframes talk{from{scale:1}to{scale:1.05 .94}}
+@keyframes breathe{50%{scale:1.025}}
+@keyframes talk{from{scale:1}to{scale:1.012 .992}}
 
 /* ---------- AUTH ---------- */
 #auth{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#0b1a20,#000 70%);padding:16px;z-index:50;overflow:auto}
@@ -114,7 +114,7 @@ body.idle #touch{cursor:none}
 #bMenu{right:14px}#bFull{right:68px}
 body:not(.ready) #bMenu,body:not(.ready) #bFull,body:not(.ready) #status{display:none}
 /* eyes-only mode: nothing on screen except the eyes (menu buttons appear only when you hover the top-right corner) */
-body.eyesonly #caption,body.eyesonly #status,body.eyesonly #timerBadge,body.eyesonly #zzz,body.eyesonly #cam,body.eyesonly #clock{display:none!important}
+body.eyesonly #caption,body.eyesonly #status,body.eyesonly #badges,body.eyesonly #openq,body.eyesonly #zzz,body.eyesonly #cam,body.eyesonly #clock{display:none!important}
 body.eyesonly #hud{opacity:1!important}
 body.eyesonly #hud button{opacity:0;transition:opacity .2s}
 body.eyesonly #hud button:hover,body.eyesonly #hud button:focus-visible{opacity:1}
@@ -123,7 +123,9 @@ body.eyesonly #hud button:hover,body.eyesonly #hud button:focus-visible{opacity:
 #status i.on{background:#3ddc84;box-shadow:0 0 8px #3ddc84}
 #status i.ear{animation:ear 1.6s ease-in-out infinite}
 @keyframes ear{50%{box-shadow:0 0 14px #3ddc84;scale:1.3}}
-#timerBadge{pointer-events:auto;position:absolute;left:50%;translate:-50% 0;top:max(14px,env(safe-area-inset-top));background:#050b0eaa;border:1px solid #1b3a45;border-radius:20px;padding:6px 14px;font-size:14px;color:#bff6ff;z-index:6;cursor:pointer}
+#badges{position:absolute;left:50%;translate:-50% 0;top:max(14px,env(safe-area-inset-top));display:flex;gap:8px;z-index:6;pointer-events:none}
+#timerBadge,#timeBadge{pointer-events:auto;background:#050b0eaa;border:1px solid #1b3a45;border-radius:20px;padding:6px 14px;font-size:14px;color:#bff6ff;cursor:pointer;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:560px){#badges{top:calc(max(14px,env(safe-area-inset-top)) + 52px)}}
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);translate:-50% 0;max-width:min(92vw,520px);background:#0a1418f2;border:1px solid #1f4452;border-radius:14px;padding:10px 16px;font-size:13.5px;z-index:60;opacity:0;pointer-events:none;transition:opacity .3s;text-align:center}
 #toast.on{opacity:1}
 
@@ -134,8 +136,8 @@ body.eyesonly #hud button:hover,body.eyesonly #hud button:focus-visible{opacity:
 #drawer{position:absolute;top:0;right:0;bottom:0;width:min(440px,100vw);background:#070c0ff7;border-left:1px solid #16303a;z-index:10;translate:100% 0;transition:translate .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;backdrop-filter:blur(10px)}
 #drawer.open{translate:0 0}
 #drawer header{display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 10px 8px 12px;border-bottom:1px solid #12262d}
-#tabs{display:flex;gap:4px}
-#tabs button{background:none;border:1px solid transparent;border-radius:12px;padding:8px 12px;font-size:14px;color:#7aa5b0}
+#tabs{display:flex;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none}
+#tabs button{background:none;border:1px solid transparent;border-radius:12px;padding:8px 9px;font-size:13.5px;color:#7aa5b0;white-space:nowrap}
 #tabs button:hover{color:#bff6ff}
 #tabs button.on{background:#0e2a33;color:#bff6ff;border-color:#1b3a45}
 #dClose{background:none;border:0;font-size:20px;padding:8px 10px;color:#7aa5b0}
@@ -158,6 +160,15 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
 #dpad{display:grid;grid-template-columns:repeat(3,76px);grid-template-rows:repeat(3,76px);gap:8px;justify-content:center;margin:10px 0}
 #dpad button{border-radius:20px;background:#0e2a33;border:1px solid #1b3a45;font-size:24px;touch-action:none}
 #dpad button:active,#dpad button.hold{background:#14475a}
+.mac{border:1px solid #16303a;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;background:#0a1418}
+.mac-h,.mac-a{display:flex;gap:6px;align-items:center}
+.mac input[type=text]{flex:1;min-width:0;background:#0c1418;border:1px solid #1b3a45;border-radius:10px;padding:8px 10px;font-size:14px;outline:none;user-select:text;-webkit-user-select:text}
+.mac select{background:#0c1418;border:1px solid #1b3a45;border-radius:10px;padding:8px 6px;font-size:13px;max-width:42%;min-width:0}
+.mac .sm{padding:7px 10px}
+.mac .mac-add{align-self:flex-start;font-size:13px}
+#openq{position:fixed;left:50%;translate:-50% 0;bottom:calc(env(safe-area-inset-bottom) + 70px);z-index:61;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:min(94vw,560px)}
+#openq a{background:#0e2a33;border:1px solid #2a6a80;border-radius:14px;padding:9px 14px;font-size:14px;color:#bff6ff;text-decoration:none;box-shadow:0 0 20px #4fd9f033}
+#openq a:hover{background:#14475a}
 </style>
 </head>
 <body>
@@ -167,7 +178,7 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
 <div id="auth">
   <div class="card">
     <div class="face mini" id="authFace" data-e="neutral"><div class="eyes"><div class="eye l"><i class="lt"></i></div><div class="eye r"><i class="lt"></i></div></div></div>
-    <h1>LOOI<small>v2.1</small></h1>
+    <h1>LOOI<small>v2.2</small></h1>
     <p class="sub" id="authSub">Sign in to wake up your robot</p>
     <form id="authForm" onsubmit="return false">
       <input type="text" id="u" placeholder="Username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20">
@@ -212,7 +223,7 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
     <button id="bFull" title="Fullscreen (F)" aria-label="Fullscreen">⛶</button>
     <button id="bMenu" title="Menu (M)" aria-label="Menu">⋯</button>
   </div>
-  <div id="timerBadge" hidden></div>
+  <div id="badges"><div id="timeBadge" hidden title="Click to hide"></div><div id="timerBadge" hidden title="Click to cancel the timer"></div></div>
 
   <div id="wake" hidden>
     <button class="btn" id="wakeBtn">Wake up LOOI</button>
@@ -226,6 +237,7 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
         <button data-tab="chat" class="on">Chat</button>
         <button data-tab="play">Play</button>
         <button data-tab="drive">Drive</button>
+        <button data-tab="macros">Macros</button>
         <button data-tab="set">Settings</button>
       </nav>
       <button id="dClose" aria-label="Close">✕</button>
@@ -238,7 +250,7 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
         <input id="chatIn" placeholder="Type to LOOI…" autocomplete="off" maxlength="300">
         <button class="sm" type="submit">Send</button>
       </form>
-      <p class="note">LOOI is always listening for <b>“Hey Looi”</b>, then takes your request. Try: “Hey Looi, what time is it”, “dance”, “timer for 2 minutes”, “be happy”, “go to sleep”.</p>
+      <p class="note">LOOI is always listening for <b>“Hey Looi”</b>, then takes your request. Try: “Hey Looi, what time is it”, “dance”, “timer for 2 minutes”, “be happy”, “go to sleep”, or any macro you made.</p>
     </section>
 
     <section data-pane="play" hidden>
@@ -253,6 +265,9 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
       </div>
       <h3>Timer</h3>
       <div class="row"><input type="text" id="tMin" inputmode="numeric" placeholder="minutes" style="width:110px"><button class="sm" id="tStart">Start timer</button></div>
+      <h3>Time</h3>
+      <div class="row"><span>Show the time at the top</span><input type="checkbox" data-set="timeBadge"></div>
+      <div class="row"><span>24-hour clock</span><input type="checkbox" data-set="time24"></div>
       <h3>Keyboard</h3>
       <p class="note"><kbd>M</kbd> menu · <kbd>F</kbd> fullscreen · <kbd>Esc</kbd> close · <kbd>Space</kbd> poke · <kbd>←↑↓→</kbd> / <kbd>WASD</kbd> drive</p>
     </section>
@@ -267,10 +282,21 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
       <div class="grid"><button class="sm" id="dSpin">🌀 Spin</button><button class="sm" id="dHome">🏠 Go home</button><button class="sm" id="dDance">🎵 Dance</button></div>
     </section>
 
+    <section data-pane="macros" hidden>
+      <p class="note">Teach LOOI a phrase. Say <b>“Hey Looi, …”</b> or type it in Chat and he runs the steps: open pages, search Google, YouTube or Spotify, start a timer, or say something. Put <b>{}</b> where the changing part goes, e.g. <i>play {} on youtube</i>. Separate alternative phrases with <b>|</b>.</p>
+      <div id="macroList"></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr"><button class="sm" id="macroAdd">＋ New macro</button><button class="sm" id="macroReset">Restore examples</button></div>
+      <p class="note">Browsers only open new tabs after a click, tap or Enter. Macros you type work straight away. For voice, allow pop-ups for this site once (icon in the address bar), or tap the “Open” button that appears.</p>
+    </section>
+
     <section data-pane="set" hidden>
       <h3>Mode</h3>
       <div class="row"><span>Eyes-only mode</span><input type="checkbox" data-set="eyes"></div>
-      <p class="note" id="eyesInfo"></p>
+      <p class="note">Hides everything except the eyes and keeps LOOI completely quiet (no speech, no subtitles, no badges). Press <kbd>M</kbd> or hover the top-right corner to bring the menu back.</p>
+      <h3>Greeting</h3>
+      <div class="row"><span>Greet me when he wakes</span><input type="checkbox" data-set="greetOn"></div>
+      <div class="row"><span>Custom greeting</span><input type="text" data-set="greet" placeholder="Good {part}, {name}!" maxlength="120"></div>
+      <p class="note">Leave it empty for a time-of-day greeting. You can use {name}, {time} and {part} (morning, afternoon, evening).</p>
       <h3>Look &amp; sound</h3>
       <div class="row"><span>Eye colour</span><input type="color" data-set="color"></div>
       <div class="row"><span>Sound effects</span><input type="checkbox" data-set="sfx"></div>
@@ -297,6 +323,7 @@ kbd{background:#0e2a33;border:1px solid #1b3a45;border-radius:6px;padding:1px 6p
     </section>
   </aside>
 </div>
+<div id="openq" hidden><button class="sm" id="openqX" type="button" aria-label="Dismiss">✕</button></div>
 <div id="toast" role="status"></div>
 
 <script>
@@ -377,10 +404,10 @@ $('#authForm').addEventListener('submit',async ev=>{
 function signOut(){localStorage.removeItem('looi_session');sessionStorage.removeItem('looi_session');location.reload()}
 
 /* ===================== USER DATA ===================== */
-const DEFAULTS={color:'#bff6ff',sfx:true,voice:true,pitch:1.7,captions:true,cam:true,preview:false,mic:true,lang:'en-US',tilt:false,eyes:false,range:1,brain:'tiny'};
+const DEFAULTS={color:'#bff6ff',sfx:true,voice:true,pitch:1.7,captions:true,cam:true,preview:false,mic:true,lang:'en-US',tilt:false,eyes:false,range:1,brain:'tiny',greetOn:true,greet:'',hinted:false,timeBadge:false,time24:false};
 let S=null; // {user,set,hist}
 const DATA_VER=3;   // bumped: older saved chats contained garbled replies, so they are dropped once
-const saveData=()=>LS.set('looi_data_'+S.user,{ver:DATA_VER,set:S.set,hist:S.hist.slice(-30)});
+const saveData=()=>LS.set('looi_data_'+S.user,{ver:DATA_VER,set:S.set,hist:S.hist.slice(-30),macros:S.macros});
 
 /* ===================== FACE ENGINE ===================== */
 const face=$('#face'),gaze=$('#face .gaze'),eyeEls=$$('#face .eye'),stage=$('#stage');
@@ -394,14 +421,16 @@ function goSleep(){baseExp='sleep';setExp('sleep')}
 
 /* gaze sources: highest priority first. Each source holds its value for a short time. */
 const src={};
-function setSrc(k,x,y,hold=1500){src[k]={x:clamp(x,-1,1),y:clamp(y,-1,1),until:performance.now()+hold}}
+function setSrc(k,x,y,hold=1500){if(!Number.isFinite(x)||!Number.isFinite(y))return;src[k]={x:clamp(x,-1,1),y:clamp(y,-1,1),until:performance.now()+Math.min(hold,20000)}}
 function clearSrc(k){src[k]=null}
+/* Priority: finger/mouse drag, driving, short cues, mouse, tilt, your face, and last of all the "thinking" glance,
+   so thinking can never freeze the eyes while you are being tracked. Every source expires on its own. */
 function pickTarget(now){
-  if(dragging&&src.drag)return src.drag;
-  for(const k of ['drive','cue','mouse','tilt','face']){const s=src[k];if(s&&s.until>now)return s}
+  if(dragging&&src.drag&&now-lastPtr<8000)return src.drag;
+  for(const k of ['drive','cue','mouse','tilt','face','think']){const s=src[k];if(s&&s.until>now)return s}
   return null;
 }
-const look={x:0,y:0,idleX:0,idleY:0,vx:0,vy:0};let dragging=false,lastTarget=0,nextGlance=0;
+const look={x:0,y:0,idleX:0,idleY:0,vx:0,vy:0};let dragging=false,lastPtr=0,lastTarget=0,nextGlance=0;
 
 /* ===================== SOUND EFFECTS (WebAudio) ===================== */
 let actx=null;
@@ -424,20 +453,28 @@ function motorOn(){if(motor||!S.set.sfx)return;try{const a=ac(),o=a.createOscill
 function motorOff(){if(!motor)return;try{motor.o.stop()}catch{}motor=null}
 
 /* ===================== SPEECH OUT ===================== */
-let speaking=false,voices=[];
+let speaking=false,voices=[],speakTok=0,curText='',quietUntil=0,pulseTok=0;
+const isTalking=()=>speaking||Date.now()<quietUntil;
 if('speechSynthesis' in window){const lv=()=>voices=speechSynthesis.getVoices();lv();speechSynthesis.onvoiceschanged=lv}
 function pickVoice(){const l=S.set.lang.slice(0,2);const c=voices.filter(v=>v.lang.toLowerCase().startsWith(l));
   return c.find(v=>/female|samantha|zira|karen|google|aria|jenny/i.test(v.name))||c[0]||null}
-function speak(text,force=false){
+/* One voice line at a time. A newer line replaces an older one cleanly: the old line's end/error events are ignored
+   (token check), so a line is never restarted, doubled up, or left with a stuck "speaking" state. */
+function speak(text){
+  const tok=++speakTok;curText=text;
   return new Promise(res=>{
-    if((!S.set.voice&&!force)||!('speechSynthesis' in window)){pulseTalk(text.length*55+600);return res()}
-    speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=pickVoice();if(v){u.voice=v;u.lang=v.lang}else u.lang=S.set.lang;
-    u.pitch=S.set.pitch;u.rate=1.08;speaking=true;face.dataset.talk='1';pauseRec();let done=false;
-    const fin=()=>{if(done)return;done=true;speaking=false;delete face.dataset.talk;resumeRec();res()};
-    u.onend=fin;u.onerror=fin;setTimeout(fin,text.length*120+3500);speechSynthesis.speak(u);
+    if(!S.set.voice||!('speechSynthesis' in window)){quietUntil=Date.now()+text.length*55+600;pulseTalk(text.length*55+600);return res()}
+    const start=()=>{
+      if(tok!==speakTok)return res();                      // a newer line already replaced this one
+      const u=new SpeechSynthesisUtterance(text);const v=pickVoice();if(v){u.voice=v;u.lang=v.lang}else u.lang=S.set.lang;
+      u.pitch=S.set.pitch;u.rate=1.08;speaking=true;face.dataset.talk='1';pauseRec();let done=false;
+      const fin=()=>{if(done)return;done=true;if(tok===speakTok){speaking=false;curText='';delete face.dataset.talk;resumeRec()}res()};
+      u.onend=fin;u.onerror=fin;setTimeout(fin,text.length*120+3500);speechSynthesis.speak(u);
+    };
+    try{if(speechSynthesis.speaking||speechSynthesis.pending){speechSynthesis.cancel();setTimeout(start,70)}else start()}catch{start()}
   });
 }
-function pulseTalk(ms){face.dataset.talk='1';setTimeout(()=>{if(!speaking)delete face.dataset.talk},ms)}
+function pulseTalk(ms){const t=++pulseTok;face.dataset.talk='1';setTimeout(()=>{if(t===pulseTok&&!speaking)delete face.dataset.talk},ms)}
 let capT;
 function caption(text,cls=''){if(!S.set.captions)return;const c=$('#caption');c.textContent=text;c.className='on '+cls;clearTimeout(capT);capT=setTimeout(()=>c.classList.remove('on'),2500+text.length*70)}
 let lastQ='';
@@ -454,12 +491,19 @@ function inferEmo(reply,q){
 }
 function parseEmo(t){const m=t.match(/\[(\w+)\]/);let e=m?m[1].toLowerCase():null;if(e==='mad')e='angry';if(e==='tired')e='sleepy';
   const text=t.replace(/\[\w+\]/g,'').replace(/\s+/g,' ').trim();if(!EMOS.includes(e))e=inferEmo(text,lastQ);return{emo:e,text}}
+const lastSaid={};
+/* opts.prio: 1 = a real answer (default, may replace what is being said), 0 = small reaction (never cuts anything off).
+   opts.id + opts.cool: the same kind of line cannot repeat inside the cooldown. The exact same text is never restarted. */
 async function say(raw,logIt=true,opts={}){
-  if(S.set.eyes&&!opts.eyes)return;                       // eyes-only mode: the only thing LOOI ever says is the "looking at" line
-  const {emo,text}=parseEmo(raw);if(!text)return;interact();setExp(emo,Math.max(3000,text.length*70));
-  if(!S.set.eyes){caption(text);if(logIt)addMsg('a',text)}
+  if(S.set.eyes)return;                                     // eyes-only mode: LOOI never speaks
+  const prio=opts.prio??1,{emo,text}=parseEmo(raw);if(!text)return;
+  const now=Date.now();
+  if(isTalking()&&text===curText)return;                    // already saying this exact line: do not restart it
+  if(isTalking()&&prio<1)return;                            // reactions never cut off an answer or each other
+  if(opts.id){if(lastSaid[opts.id]&&now-lastSaid[opts.id]<(opts.cool??8000))return;lastSaid[opts.id]=now}
+  interact();setExp(emo,Math.max(3000,text.length*70));caption(text);if(logIt)addMsg('a',text);
   if(emo==='love')sfx.love();
-  await speak(text,!!opts.eyes);
+  await speak(text);
 }
 
 /* ===================== BRAIN: small on-device model (Transformers.js + SmolLM2) ===================== */
@@ -538,19 +582,25 @@ function sane(t){
 }
 
 /* ---- generation ---- */
+let genRunning=false,GEN_TIMEOUT=30000;
 async function runGen(msgs,opts){const out=await gen(msgs,opts);return tidy(out[0].generated_text.at(-1).content||'')}
 async function generate(){
-  const h=S.hist.slice(-4);while(h.length&&h[0].role!=='user')h.shift();
-  const msgs=[{role:'system',content:SYSTEM(S.user)},...FEW(S.user),...h];
-  // Careful, low-temperature sampling. (The old high repetition penalty is what produced the glued-together word salad.)
-  const base={max_new_tokens:48,no_repeat_ngram_size:3};
-  let t=await runGen(msgs,{...base,do_sample:true,temperature:.45,top_k:30,top_p:.9});
-  if(sane(t))return t;
-  const last=h.length?h[h.length-1].content:'hi';           // second try: no history, deterministic
-  t=await runGen([{role:'system',content:SYSTEM(S.user)},{role:'user',content:last}],{...base,do_sample:false});
-  if(sane(t))return t;
-  throw new Error('unclear');
+  if(genRunning)throw new Error('still thinking');
+  genRunning=true;
+  try{
+    const h=S.hist.slice(-4);while(h.length&&h[0].role!=='user')h.shift();
+    const msgs=[{role:'system',content:SYSTEM(S.user)},...FEW(S.user),...h];
+    // Careful, low-temperature sampling. (The old high repetition penalty is what produced the glued-together word salad.)
+    const base={max_new_tokens:48,no_repeat_ngram_size:3};
+    let t=await runGen(msgs,{...base,do_sample:true,temperature:.45,top_k:30,top_p:.9});
+    if(sane(t))return t;
+    const last=h.length?h[h.length-1].content:'hi';           // second try: no history, deterministic
+    t=await runGen([{role:'system',content:SYSTEM(S.user)},{role:'user',content:last}],{...base,do_sample:false});
+    if(sane(t))return t;
+    throw new Error('unclear');
+  }finally{genRunning=false}
 }
+const withTimeout=(p,ms)=>new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('timeout')),ms);p.then(v=>{clearTimeout(t);res(v)},e=>{clearTimeout(t);rej(e)})});
 
 /* ---- instant, always-kind answers for the things tiny models get wrong ---- */
 const NUMW={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20};
@@ -583,7 +633,7 @@ function quickReply(text){
   if(/\b(you are|you're|youre|ur)\b.*\b(stupid|dumb|bad|useless|ugly|annoying|trash|garbage|terrible|worst)\b|\b(stupid|dumb|idiot|shut up)\b/.test(l))return '[sad] Oh... I am sorry. I am still learning, and I will try to do better.';
   if(/\bjoke\b/.test(l))return pick(JOKES);
   if(/\b(i am|i'm|im|feeling|i feel)\b.*\b(sad|lonely|down|tired|upset|stressed|anxious)\b/.test(l))return '[sad] I am sorry you feel that way. I am right here with you, and I think you are doing great.';
-  if(/\bhow old are you\b|\byour age\b/.test(l))return '[happy] I am brand new, version two point one!';
+  if(/\bhow old are you\b|\byour age\b/.test(l))return '[happy] I am brand new, version two point two!';
   if(/\bare you (real|alive)\b/.test(l))return '[thinking] I am a little robot made of code, but my feelings for you feel pretty real!';
   if(/^(wth|wtf|what the .*)$/.test(l))return '[surprised] Oops, did I say something strange? Sorry, I am still learning!';
   if(/^(what is it|what|huh|why|ok|okay|lol|hmm+|k)$/.test(l))return '[thinking] Hmm, can you tell me a bit more?';
@@ -594,21 +644,26 @@ function offline(t){const l=t.toLowerCase();
   return pick(['[thinking] Hmm, I am not sure about that one. Could you ask me another way?','[happy] I did not quite get that, but I really like talking with you!','[thinking] That is a tricky one for a tiny robot like me!']);
 }
 function aiDot(on){$('#sAi').classList.toggle('on',on)}
-let busy=false;
+let busy=false,thinking=false;
 async function ask(text){
-  if(busy)return;busy=true;lastQ=text;
+  if(busy)return;busy=true;lastQ=text;let reply;
   try{
     S.hist.push({role:'user',content:text});
-    let reply=quickReply(text);
+    reply=quickReply(text);
     if(!reply){
-      setExp('thinking');setSrc('cue',.55,-.8,120000);
-      try{if(!gen)throw new Error('offline');reply=await generate();aiDot(true)}
-      catch(e){reply=offline(text);if(gen&&e.message!=='unclear'){aiDot(false);toast('Brain hiccup ('+e.message+'), using a quick answer')}}
-      clearSrc('cue');
+      // "thinking" look: a low-priority glance that your face / mouse always override, and that is refreshed only while we are really waiting
+      thinking=true;setExp('thinking',GEN_TIMEOUT+5000);setSrc('think',.5,-.7,600);
+      try{if(!gen)throw new Error('offline');reply=await withTimeout(generate(),GEN_TIMEOUT);aiDot(true)}
+      catch(e){
+        reply=offline(text);
+        if(e.message==='timeout')toast('That took too long, so I gave a quick answer.');
+        else if(gen&&!['unclear','still thinking','offline'].includes(e.message)){aiDot(false);toast('Brain hiccup ('+e.message+'), using a quick answer')}
+      }
+      finally{thinking=false;clearSrc('think');if(face.dataset.e==='thinking')setExp(baseExp)}
     }
     S.hist.push({role:'assistant',content:reply.replace(/\[\w+\]/g,'').trim()});S.hist=S.hist.slice(-12);saveData();
-    await say(reply);
-  }finally{busy=false}
+  }finally{busy=false}                                          // free for the next question before we start talking
+  await say(reply);
 }
 function updateBrainInfo(){
   const B=BRAINS[S.set.brain in BRAINS?S.set.brain:'tiny'];
@@ -642,19 +697,155 @@ $('#loadRetry').onclick=startLoading;
 $('#loadSkip').onclick=()=>{loadId++;brainState='offline';finishLoading()};
 $('#loadOut').onclick=signOut;
 
+/* ===================== MACROS: "when I say X, do Y" ===================== */
+const ACT_TYPES=['open','google','youtube','spotify','timer','say'];
+const ACT_LABEL={open:'Open a page',google:'Google search',youtube:'YouTube search',spotify:'Spotify search',timer:'Start a timer',say:'Say something'};
+const ACT_HINT={open:'youtube.com, or any link',google:'what to search · {} = what you said',youtube:'what to search · {} = what you said',spotify:'song or artist · {} = what you said',timer:'25 min · 90 sec · 1 hour',say:'what LOOI says'};
+const SITE_NAME={google:'Google',youtube:'YouTube',spotify:'Spotify'};
+const SEARCH={
+  google:q=>q?'https://www.google.com/search?q='+encodeURIComponent(q):'https://www.google.com',
+  youtube:q=>q?'https://www.youtube.com/results?search_query='+encodeURIComponent(q):'https://www.youtube.com',
+  spotify:q=>q?'https://open.spotify.com/search/'+encodeURIComponent(q):'https://open.spotify.com'
+};
+const SITES={youtube:'youtube.com',google:'google.com',spotify:'open.spotify.com',gmail:'mail.google.com',github:'github.com',reddit:'reddit.com',twitter:'x.com',x:'x.com',
+  netflix:'netflix.com',twitch:'twitch.tv',discord:'discord.com/app',maps:'maps.google.com',drive:'drive.google.com',docs:'docs.google.com',whatsapp:'web.whatsapp.com',
+  facebook:'facebook.com',instagram:'instagram.com',tiktok:'tiktok.com',amazon:'amazon.com',wikipedia:'wikipedia.org',chatgpt:'chatgpt.com',claude:'claude.ai',
+  notion:'notion.so',linkedin:'linkedin.com',pinterest:'pinterest.com',translate:'translate.google.com',calendar:'calendar.google.com',outlook:'outlook.live.com'};
+/* only http(s) links are ever opened (no javascript:, data:, file: …). A bare word that is not a known site becomes a Google search. */
+function toUrl(v){
+  v=String(v||'').trim();if(!v)return null;
+  if(/^https?:\/\//i.test(v))return v;
+  if(/^[a-z][a-z0-9+.-]*:/i.test(v)&&!/^[\w-]+(\.[\w-]+)+:\d+(\/|$)/i.test(v))return null;
+  const key=v.toLowerCase();if(SITES[key])return 'https://'+SITES[key];
+  if(/^[\w-]+(\.[\w-]+)+(:\d+)?([\/?#].*)?$/.test(v))return 'https://'+v;
+  return 'https://www.google.com/search?q='+encodeURIComponent(v);
+}
+const hostOf=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch{return 'the page'}};
+function parseDur(s){
+  s=String(s||'').toLowerCase().replace(/,/g,' ').trim();if(!s)return 0;
+  let m=s.match(/^(\d+):(\d{1,2})$/);if(m)return +m[1]*60+ +m[2];
+  let tot=0,found=false;
+  s.replace(/(\d+(?:\.\d+)?)\s*(hours?|hrs?|h|minutes?|mins?|m|seconds?|secs?|s)\b/g,(_,n,u)=>{found=true;tot+=parseFloat(n)*(/^h/.test(u)?3600:/^m/.test(u)?60:1);return ''});
+  if(found)return Math.round(tot);
+  m=s.match(/^(\d+(?:\.\d+)?)$/);if(m)return Math.round(parseFloat(m[1])*60);   // a bare number means minutes
+  return 0;
+}
+function fmtDur(sec){const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60,p=[];
+  if(h)p.push(h+(h>1?' hours':' hour'));if(m)p.push(m+(m>1?' minutes':' minute'));if(s&&!h)p.push(s+(s>1?' seconds':' second'));return p.join(' ')||'0 seconds'}
+
+const MAXMAC=30,MAXACT=8;
+function starterMacros(){return[
+  {id:'m1',phrase:'google {} | search google for {}',acts:[{t:'google',v:'{}'}]},
+  {id:'m2',phrase:'youtube {} | search youtube for {} | play {} on youtube',acts:[{t:'youtube',v:'{}'}]},
+  {id:'m3',phrase:'spotify {} | search spotify for {} | play {} on spotify',acts:[{t:'spotify',v:'{}'}]},
+  {id:'m4',phrase:'study time | focus mode',acts:[{t:'say',v:'Let us focus. Twenty five minutes, starting now!'},{t:'timer',v:'25 min'},{t:'youtube',v:'lofi study music'}]}
+]}
+function cleanMacros(a){
+  return(Array.isArray(a)?a:[]).slice(0,MAXMAC).filter(m=>m&&typeof m==='object').map((m,i)=>({
+    id:String(m.id||('m'+i+'_'+Date.now())).slice(0,40),phrase:String(m.phrase||'').slice(0,100),
+    acts:(Array.isArray(m.acts)?m.acts:[]).slice(0,MAXACT).filter(x=>x&&typeof x==='object').map(x=>({t:ACT_TYPES.includes(x.t)?x.t:'open',v:String(x.v||'').slice(0,300)}))}));
+}
+/* matching: lowercase, no punctuation, the whole sentence must be the phrase (polite filler words allowed around it); {} captures the rest */
+const normM=s=>String(s).toLowerCase().replace(/[^\p{L}\p{N}\s'{}]/gu,' ').replace(/\s+/g,' ').trim();
+const FILL_PRE='(?:(?:please|can you|could you|would you|just|go ahead and|hey|ok|okay|run|start|do|activate|trigger|open|launch|go to)\\s+)*';
+const FILL_POST='(?:\\s+(?:please|now|for me))*';
+const escRe=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function matchMacro(text){
+  const u=normM(text);if(!u||!S||!S.macros)return null;let best=null;
+  for(const m of S.macros){
+    if(!m.acts.length)continue;
+    for(const alt of m.phrase.split('|')){
+      const p=normM(alt);if(!p||p==='{}')continue;
+      let re;try{re=new RegExp('^'+FILL_PRE+p.split('{}').map(escRe).join('(.+?)')+FILL_POST+'$')}catch{continue}
+      const r=u.match(re);if(!r)continue;
+      const cap=(r[1]||'').trim();if(p.includes('{}')&&!cap)continue;
+      if(p.includes('{}')&&p.split('{}')[0].trim().split(' ').filter(Boolean).length<=1&&/^(is|are|was|were|am|isn't|aren't|has|have|does|do|did)\b/.test(cap))continue;   // "youtube is down" is chat, not a command
+      const score=p.replace(/\{\}/g,'').length+(p.includes('{}')?0:5);                // exact phrases beat open-ended ones
+      if(!best||score>best.score)best={m,cap,score};
+    }
+  }
+  return best;
+}
+/* Browsers only allow pop-ups straight after a click/tap/Enter. Anything blocked becomes a tap-to-open button instead. */
+function openUrl(u){let w=null;try{w=window.open(u,'_blank')}catch{}if(w){try{w.opener=null}catch{}return true}return false}
+let popToast=0;
+function queueOpen(o){
+  const q=$('#openq'),a=document.createElement('a');a.href=o.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Open '+hostOf(o.url);
+  a.addEventListener('click',()=>setTimeout(()=>{a.remove();if(!$$('#openq a').length)q.hidden=true},50));
+  q.insertBefore(a,$('#openqX'));q.hidden=false;
+  if(Date.now()-popToast>20000){popToast=Date.now();toast('Your browser blocked the pop-up. Tap the Open button, or allow pop-ups for this site (address bar icon) so voice macros open pages by themselves.',7000)}
+}
+$('#openqX').onclick=()=>{$$('#openq a').forEach(a=>a.remove());$('#openq').hidden=true};
+function macroName(m,cap){const first=(m.phrase.split('|')[0]||'').trim().replace(/\{\}/g,cap||'').replace(/\s+/g,' ').trim();return first||'your macro'}
+function runMacro(m,cap){
+  const fill=(v,enc)=>String(v||'').replace(/\{\}/g,enc?encodeURIComponent(cap||''):(cap||'')).trim();
+  const says=[],notes=[],opens=[],parts=[];let tsec=0;
+  for(const a of m.acts){
+    if(a.t==='say'){const v=fill(a.v);if(v)says.push(v)}
+    else if(a.t==='timer'){const v=fill(a.v),s=parseDur(v);if(s>0){tsec=Math.min(s,86400)}else notes.push('I could not read the timer “'+(v||'empty')+'”')}
+    else if(a.t==='open'){const u=toUrl(fill(a.v,true));if(u){opens.push({url:u});parts.push('Opening '+hostOf(u))}else notes.push('I will not open “'+fill(a.v)+'”')}
+    else if(SEARCH[a.t]){const q=fill(a.v),u=SEARCH[a.t](q);opens.push({url:u});parts.push(q?'Searching '+SITE_NAME[a.t]+' for '+q:'Opening '+SITE_NAME[a.t])}
+  }
+  // the first page opens right now, while the click/Enter that started this still counts, then the rest follow
+  opens.forEach((o,i)=>{const go=()=>{if(!openUrl(o.url))queueOpen(o)};if(i===0)go();else setTimeout(go,i*350)});
+  if(tsec){startTimer(tsec);parts.push('Timer set for '+fmtDur(tsec))}
+  if(notes.length)toast(notes.join(' · '),6000);
+  const line=says.length?says.join(' '):parts.length===1?parts[0]+'!':parts.length?'Okay, running '+macroName(m,cap)+'!':(notes.length?'Hmm, I could not do that one.':'That macro has no steps yet.');
+  return say('[excited] '+line);
+}
+function testMacro(m){
+  if(!m.acts.length){toast('Add a step first.');return}
+  let cap='';if(/\{\}/.test(m.phrase+m.acts.map(a=>a.v).join(''))){cap=(prompt('This macro uses {}. What should it be replaced with?','')||'').trim();if(!cap)return}
+  interact();runMacro(m,cap);
+}
+function mkBtn(label,title,fn,cls='sm'){const b=document.createElement('button');b.type='button';b.className=cls;b.textContent=label;if(title){b.title=title;b.setAttribute('aria-label',title)}b.onclick=fn;return b}
+function renderMacros(){
+  const box=$('#macroList');if(!box||!S)return;box.textContent='';
+  if(!S.macros.length){const p=document.createElement('p');p.className='note';p.textContent='No macros yet. Tap “New macro” to teach LOOI a phrase.';box.appendChild(p)}
+  S.macros.forEach((m,mi)=>{
+    const card=document.createElement('div');card.className='mac';
+    const head=document.createElement('div');head.className='mac-h';
+    const ph=document.createElement('input');ph.type='text';ph.maxLength=100;ph.value=m.phrase;ph.placeholder='When I say… (e.g. study time)';ph.setAttribute('aria-label','Phrase that triggers this macro');
+    ph.addEventListener('input',()=>{m.phrase=ph.value;saveData()});
+    head.append(ph,mkBtn('▶','Test this macro',()=>testMacro(m)),mkBtn('🗑','Delete this macro',()=>{S.macros.splice(mi,1);saveData();renderMacros()}));
+    card.appendChild(head);
+    m.acts.forEach((a,ai)=>{
+      const row=document.createElement('div');row.className='mac-a';
+      const sel=document.createElement('select');sel.setAttribute('aria-label','Step type');
+      ACT_TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=ACT_LABEL[t];sel.appendChild(o)});sel.value=a.t;
+      const val=document.createElement('input');val.type='text';val.maxLength=300;val.value=a.v;val.placeholder=ACT_HINT[a.t];val.setAttribute('aria-label','Step value');
+      sel.addEventListener('change',()=>{a.t=sel.value;val.placeholder=ACT_HINT[a.t];saveData()});
+      val.addEventListener('input',()=>{a.v=val.value;saveData()});
+      row.append(sel,val,mkBtn('✕','Remove this step',()=>{m.acts.splice(ai,1);saveData();renderMacros()}));
+      card.appendChild(row);
+    });
+    if(m.acts.length<MAXACT)card.appendChild(mkBtn('＋ Add step','',()=>{m.acts.push({t:'open',v:''});saveData();renderMacros()},'sm mac-add'));
+    box.appendChild(card);
+  });
+}
+$('#macroAdd').onclick=()=>{
+  if(S.macros.length>=MAXMAC)return toast('That is the most macros I can remember ('+MAXMAC+').');
+  S.macros.push({id:'m'+Date.now(),phrase:'',acts:[{t:'open',v:''}]});saveData();renderMacros();
+  const first=$$('#macroList .mac').pop();if(first){first.scrollIntoView({block:'nearest'});first.querySelector('input')?.focus()}
+};
+$('#macroReset').onclick=()=>{if(!confirm('Replace all your macros with the examples?'))return;S.macros=starterMacros();saveData();renderMacros();toast('Examples restored')};
+
 /* ===================== COMMANDS ===================== */
 function processInput(text,fromVoice=false){
   text=text.trim();if(!text)return;
   if(S.set.eyes){toast('Eyes-only mode is on. Turn it off in Settings to chat.');return}
   interact();addMsg('u',text);if(fromVoice)caption(text,'you');
+  const mm=matchMacro(text);if(mm)return runMacro(mm.m,mm.cap);          // your own macros always come first
   const l=text.toLowerCase().replace(/[.!?]+$/,'');
   const exp=l.match(/\b(?:be|look|feel|show(?: me)?|make a|do a|act)\s+(?:a\s+)?(happy|sad|angry|mad|surprised|love|loving|sleepy|tired|wink|scared|excited|dizzy)\b/);
   const tm=l.match(/timer.*?(\d+)\s*(second|sec|minute|min|hour|hr)/);
   if(tm){const n=+tm[1],u=tm[2];startTimer(/^h/.test(u)?n*3600:/^m/.test(u)?n*60:n);return say(`[excited] Timer set for ${n} ${u.replace(/s$/,'')}${n>1?'s':''}!`)}
-  if(/\b(what('?s| is) the time|what time|time is it)\b/.test(l))return say('[happy] It is '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
+  if(/\b(what('?s| is) the time|what time|time is it)\b/.test(l))return say('[happy] It is '+fmtTime());
+  if(/\b(show|display|turn on|put up)\b.*\btime\b/.test(l)){setSet('timeBadge',true);return say('[happy] Okay, here is the time.')}
+  if(/\b(hide|remove|turn off|stop showing)\b.*\btime\b/.test(l)){setSet('timeBadge',false);return say('[happy] Okay, I hid the time.')}
   if(/\b(dance|boogie|party)\b/.test(l)){say('[excited] Let us dance!');return dance(12)}
   if(/\b(go to sleep|good ?night|sleep now|nap)\b/.test(l)){say('[sleepy] Goodnight...').then(()=>setTimeout(goSleep,700));return}
-  if(/\b(stop|cancel|quiet|shush)\b/.test(l)){danceUntil=0;stopTimer();speechSynthesis?.cancel();return say('[happy] Okay, stopped!')}
+  if(/\b(stop|cancel|quiet|shush)\b/.test(l)){danceUntil=0;stopTimer();window.speechSynthesis?.cancel();return say('[happy] Okay, stopped!')}
   if(/\b(photo|selfie|picture)\b/.test(l))return takePhoto();
   if(/\bspin\b/.test(l)){say('[excited] Wheee!');return spin()}
   if(/\bclock\b/.test(l)){showClock(true);return say('[happy] Here is the clock. Tap to close.')}
@@ -695,14 +886,14 @@ function driveStep(){
   if(moving&&!wasMoving)motorOn();if(!moving&&wasMoving)motorOff();wasMoving=moving;
 }
 function edgeHit(dx,dy){edgeCool=Date.now()+1300;motorOff();sfx.edge();setExp('scared',1500);drive.x-=dx*innerWidth*.07;drive.y-=dy*innerHeight*.07;
-  if(Date.now()-lastEdgeSay>6000){lastEdgeSay=Date.now();say(pick(['[scared] Whoa! That is the edge!','[scared] Eek! I almost fell off the desk!']),false)}}
+  if(Date.now()-lastEdgeSay>6000){lastEdgeSay=Date.now();say(pick(['[scared] Whoa! That is the edge!','[scared] Eek! I almost fell off the desk!']),false,{id:'edge',cool:6000,prio:0})}}
 function goHome(){dirs.clear();drive.x=drive.y=0;drive.rot=0}
 $$('#dpad [data-dir]').forEach(b=>{const d=b.dataset.dir;const on=e=>{e.preventDefault();dirs.add(d);b.classList.add('hold')},off=()=>{dirs.delete(d);b.classList.remove('hold')};
   b.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,off))});
 $('#dCenter').onclick=goHome;$('#dHome').onclick=goHome;$('#dSpin').onclick=spin;$('#dDance').onclick=()=>dance(12);
 
 /* ===================== MAIN FRAME LOOP ===================== */
-let rafOn=false,lastT=0,fc=0,ampX=0,ampY=0,tAmpX=0,tAmpY=0;
+let rafOn=false,lastT=0,fc=0,ampX=0,ampY=0,tAmpX=0,tAmpY=0,frameWarned=false;
 /* How far the eyes may travel (px): almost the whole free space on the screen, scaled by the "tracking range" setting. */
 function calcAmp(snap){
   const w=gaze.offsetWidth,h=gaze.offsetHeight;if(!w||!h)return;
@@ -711,40 +902,48 @@ function calcAmp(snap){
   if(snap){ampX=tAmpX;ampY=tAmpY}
 }
 addEventListener('resize',()=>calcAmp(true));
+/* An error in one frame can never stop the loop (that would freeze the eyes while the blink timer keeps running). */
 function frame(t){
-  const dt=Math.min(.05,(t-lastT)/1000||.016);lastT=t;const now=performance.now();
+  try{step(t)}catch(e){if(!frameWarned){frameWarned=true;console.warn('frame error (loop kept running):',e)}}
+  requestAnimationFrame(frame);
+}
+function step(t){
+  const dt=clamp((t-lastT)/1000||.016,.001,.05);lastT=t;const now=performance.now();
   const U=Math.min(innerWidth,innerHeight)*.012;
   if((fc++%15)===0)calcAmp(false);
+  if(!Number.isFinite(ampX)||!Number.isFinite(ampY)){ampX=ampY=0;calcAmp(true)}
   ampX+=(tAmpX-ampX)*.12;ampY+=(tAmpY-ampY)*.12;
   // pick where to look
-  let tg=pickTarget(now);
+  const tg=pickTarget(now);
   if(tg){lastTarget=now}
   else if(baseExp==='sleep'){look.idleX=look.idleY=0}
   else if(now>nextGlance&&now-lastTarget>2200){look.idleX=Math.random()<.35?0:rnd(-.4,.4);look.idleY=Math.random()<.4?0:rnd(-.25,.22);nextGlance=now+rnd(1400,4200)}
   const tx=tg?tg.x:look.idleX,ty=tg?tg.y:look.idleY;
-  // critically-damped-ish smoothing (frame-rate independent)
-  const k=1-Math.exp(-dt*(tg&&tg===src.drag?16:9));
+  // smoothing that does not depend on the frame rate
+  const k=1-Math.exp(-dt*(tg&&tg===src.drag?11:9));
   const ox=look.x,oy=look.y;look.x+=(tx-look.x)*k;look.y+=(ty-look.y)*k;
+  if(!Number.isFinite(look.x))look.x=0;if(!Number.isFinite(look.y))look.y=0;
   const vx=(look.x-ox)/dt,vy=(look.y-oy)/dt;look.vx+=(vx-look.vx)*.3;look.vy+=(vy-look.vy)*.3;
+  if(!Number.isFinite(look.vx))look.vx=0;if(!Number.isFinite(look.vy))look.vy=0;
   // subtle life-like drift
   const nx=Math.sin(now/1900)*.025,ny=Math.cos(now/2300)*.02;
   gaze.style.translate=`${(look.x+nx)*ampX}px ${(look.y+ny)*ampY}px`;
-  // squash & stretch while the eyes move quickly
-  const sx=clamp(Math.abs(look.vx)*.018,0,.1),sy=clamp(Math.abs(look.vy)*.018,0,.08);
-  gaze.style.scale=`${1+sx-sy*.5} ${1-sx*.6+sy*.5}`;gaze.style.rotate=`${clamp(look.vx*.25,-3,3)}deg`;
+  // a very light squash while the eyes move fast (kept tiny so poking and looking around never looks wobbly)
+  const sx=clamp(Math.abs(look.vx)*.006,0,.03),sy=clamp(Math.abs(look.vy)*.006,0,.025);
+  gaze.style.scale=`${1+sx-sy*.5} ${1-sx*.6+sy*.5}`;gaze.style.rotate=`${clamp(look.vx*.05,-.8,.8)}deg`;
   if(S&&!$('#app').hidden){driveStep();
     let dx=drive.x,dy=drive.y,rot=drive.rot;
     if(Date.now()<danceUntil){const v=Math.min(1,mic.vol*5),a=U*6;dx+=Math.sin(t/230)*a*.5;rot+=Math.sin(t/460)*7;dy-=Math.abs(Math.sin(t/230))*a*.45*(1+v*2)}
     if(spinStart){const p=(t-spinStart)/900;if(p>=1)spinStart=0;else rot+=360*(p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2)}
     stage.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg)`;
   }
-  requestAnimationFrame(frame);
 }
 let nextBlink=0,nextQuirk=Date.now()+30000;
 setInterval(()=>{
   if(!S||$('#app').hidden)return;const now=Date.now();
   if(now>nextBlink&&baseExp!=='sleep'){blink();nextBlink=now+(baseExp==='sleepy'?rnd(1500,3000):rnd(2500,6500));if(Math.random()<.2)setTimeout(blink,260)}
   face.toggleAttribute('data-listen',now<listenUntil&&!speaking);
+  if(thinking)setSrc('think',.5,-.7,600);
   $('#sMic').classList.toggle('ear',!!micStream&&now>=listenUntil);
   if(baseExp==='neutral'&&now-lastAct>120000)goSleep();
   if(baseExp==='neutral'&&now>nextQuirk&&now-lastAct>15000&&face.dataset.e==='neutral'){nextQuirk=now+rnd(25000,55000);setExp(pick(['wink','happy','thinking','sleepy','surprised']),1600)}
@@ -753,17 +952,31 @@ setInterval(()=>{
 /* ===================== POINTER / TOUCH / MOUSE ===================== */
 let pd=null,lpT=null;const touch=$('#touch');
 const gx=e=>(e.clientX/innerWidth-.5)*2.4,gy=e=>(e.clientY/innerHeight-.5)*2.4;
-let pokes=[];
-function poke(){interact();sfx.poke();const n=Date.now();pokes=pokes.filter(t=>n-t<3500);pokes.push(n);
-  if(pokes.length>=5){pokes=[];setExp('angry',2500);sfx.grr();say('[angry] Hey! Stop poking me!',false);return}
-  setExp(pick(['surprised','happy','wink']),700)}
-function love(){interact();sfx.love();setExp('love',3000);if(S.set.voice&&Math.random()<.5)say('[love] Aww, thank you!',false)}
-touch.addEventListener('pointerdown',e=>{interact();showHud();pd={x:e.clientX,y:e.clientY,moved:false,long:false};dragging=true;setSrc('drag',gx(e),gy(e),1e9);
+let pokes=[],lastPokeAt=0,burstAt=0,burstExp='surprised',nextAngry=0;
+/* One calm reaction per burst of pokes (not a new face every tap), and one "stop poking me" per cooldown. */
+function poke(){
+  const n=Date.now();if(n-lastPokeAt<90)return;lastPokeAt=n;
+  interact();sfx.poke();pokes=pokes.filter(t=>n-t<3500);pokes.push(n);
+  if(pokes.length>=5){
+    setExp('angry',1400);
+    if(n>=nextAngry){nextAngry=n+12000;sfx.grr();say('[angry] Hey! Stop poking me!',false,{id:'angry',cool:12000,prio:0})}
+    return;
+  }
+  if(n-burstAt>1500)burstExp=pick(['surprised','happy','wink']);
+  burstAt=n;setExp(burstExp,900);
+}
+function love(){interact();sfx.love();setExp('love',3000);if(S.set.voice)say('[love] Aww, thank you!',false,{id:'love',cool:10000,prio:0})}
+touch.addEventListener('pointerdown',e=>{interact();showHud();pd={x:e.clientX,y:e.clientY,moved:false,long:false};dragging=true;lastPtr=performance.now();
+  try{touch.setPointerCapture(e.pointerId)}catch{}                  // so the release is always seen, even if the finger ends up over the menu
+  setSrc('drag',gx(e),gy(e),20000);
   lpT=setTimeout(()=>{if(pd&&!pd.moved){pd.long=true;love()}},700)});
 touch.addEventListener('pointermove',e=>{showHud();
-  if(dragging&&pd){setSrc('drag',gx(e),gy(e),1e9);if(Math.hypot(e.clientX-pd.x,e.clientY-pd.y)>12)pd.moved=true}
+  if(dragging&&pd){lastPtr=performance.now();setSrc('drag',gx(e),gy(e),20000);if(Math.hypot(e.clientX-pd.x,e.clientY-pd.y)>12)pd.moved=true}
   else if(e.pointerType==='mouse'&&baseExp!=='sleep')setSrc('mouse',gx(e),gy(e),1800)});
-['pointerup','pointercancel'].forEach(ev=>touch.addEventListener(ev,()=>{clearTimeout(lpT);dragging=false;clearSrc('drag');if(pd&&!pd.moved&&!pd.long)poke();pd=null}));
+function endPtr(tap){clearTimeout(lpT);dragging=false;clearSrc('drag');const p=pd;pd=null;if(tap&&p&&!p.moved&&!p.long)poke()}
+touch.addEventListener('pointerup',()=>endPtr(true));
+['pointercancel','lostpointercapture'].forEach(ev=>touch.addEventListener(ev,()=>endPtr(false)));
+addEventListener('blur',()=>endPtr(false));
 let hudT;function showHud(){const h=$('#hud');h.classList.add('show');document.body.classList.remove('idle');clearTimeout(hudT);
   hudT=setTimeout(()=>{if(!$('#drawer').classList.contains('open'))h.classList.remove('show');document.body.classList.add('idle')},3500)}
 
@@ -812,7 +1025,7 @@ function visionLoop(){
   for(let i=0;i<N;i++)bg[i]+=(g[i]-bg[i])*.06;
 }
 function seen(now){const gap=now-lastSeen;lastSeen=now;
-  if(gap>45000&&!speaking&&!busy&&baseExp!=='sleep'&&face.dataset.e===baseExp){setExp('happy',2200);say(pick([`[happy] Hi ${S.user}!`,`[excited] Oh, hello ${S.user}!`,'[happy] There you are!']),false)}}
+  if(gap>45000&&!speaking&&!busy&&baseExp!=='sleep'&&face.dataset.e===baseExp){setExp('happy',2200);say(pick([`[happy] Hi ${S.user}!`,`[excited] Oh, hello ${S.user}!`,'[happy] There you are!']),false,{id:'seen',cool:30000,prio:0})}}
 
 /* ===================== MICROPHONE: always listening for "Hey Looi" ===================== */
 const mic={vol:0,avg:.01,cool:0};let meterT=null;
@@ -881,54 +1094,34 @@ function stopMedia(){
 let shakeCool=0;
 const onOri=e=>{if(e.gamma==null)return;setSrc('tilt',clamp(e.gamma/30,-1,1),clamp(((e.beta||45)-45)/30,-1,1),1000)};
 const onMot=e=>{const a=e.accelerationIncludingGravity;if(!a)return;const m=Math.hypot(a.x||0,a.y||0,a.z||0);
-  if(Math.abs(m-9.8)>20&&Date.now()>shakeCool){shakeCool=Date.now()+4000;interact();setExp('dizzy',3000);say('[dizzy] Whoa... everything is spinning!',false)}};
+  if(Math.abs(m-9.8)>20&&Date.now()>shakeCool){shakeCool=Date.now()+4000;interact();setExp('dizzy',3000);say('[dizzy] Whoa... everything is spinning!',false,{id:'dizzy',cool:6000,prio:0})}};
 async function setTilt(on){
   removeEventListener('deviceorientation',onOri);removeEventListener('devicemotion',onMot);if(!on)return;
   try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){toast('Motion permission denied');return}}}catch{}
   addEventListener('deviceorientation',onOri);addEventListener('devicemotion',onMot);
 }
 
-/* ===================== EYES-ONLY: "Oh, what's that you're looking at in ___?" =====================
-   A web page cannot see which app is in front, so there are two sources:
-   1) looi-helper.bat (optional, Windows, nothing to install) reports the front app's name on 127.0.0.1:8765
-   2) without it, LOOI only notices that you clicked away from this window and says the line without the app name. */
-const HELPER_URL='http://127.0.0.1:8765/app';
-const ew={app:'',since:0,pending:false,lastSay:0,helper:false,fails:0,timer:null,blurT:null};
-const appLine=name=>name?`Oh, what's that you're looking at in ${name}?`:"Oh, what's that you're looking at?";
-function sayLooking(name){
-  ew.lastSay=Date.now();interact();setSrc('cue',pick([-.8,.8]),.3,3500);
-  return say('[surprised] '+appLine(name),false,{eyes:true});
+/* ===================== GREETING + TIME BADGE ===================== */
+const dayPart=()=>{const h=new Date().getHours();return h<5?'night':h<12?'morning':h<17?'afternoon':h<22?'evening':'night'};
+function fmtTime(){const d=new Date();
+  return S&&S.set.time24?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hourCycle:'h23'}):d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true})}
+/* Custom greeting (Settings) may use {name}, {time} and {part}. Without one he greets by time of day. */
+function greetLine(withHint){
+  const n=S.user,p=dayPart(),custom=String(S.set.greet||'').trim().slice(0,120);
+  if(custom)return '[happy] '+custom.replace(/\{name\}/gi,n).replace(/\{time\}/gi,fmtTime()).replace(/\{part\}/gi,p);
+  const L={morning:[`Good morning, ${n}! I hope you slept well.`,`Good morning, ${n}! Ready for a great day?`],
+    afternoon:[`Good afternoon, ${n}! It is nice to see you.`,`Hi ${n}! I hope your afternoon is going well.`],
+    evening:[`Good evening, ${n}! How was your day?`,`Good evening, ${n}! I am glad you are here.`],
+    night:[`Hello, ${n}! Up late tonight?`,`Hi ${n}! It is nice and quiet tonight.`]};
+  return '[happy] '+pick(L[p])+(withHint?' Say Hey Looi any time.':'');
 }
-function updateEyesInfo(){
-  const el=$('#eyesInfo');if(!el||!S)return;
-  el.textContent=!S.set.eyes
-    ?'Hides everything except the eyes. LOOI stays quiet and only says “Oh, what’s that you’re looking at in …?” when you switch apps. Press M (or hover the top-right corner) to bring the menu back.'
-    :(ew.helper?`App helper connected. Front app: ${ew.app||'…'}.`
-      :'App helper not found, so he only knows when you click away from this window and will say “Oh, what’s that you’re looking at?” without the app name. That is fine as it is; the app name is an optional extra (Windows: double-click looi-helper.bat).');
+let tbT=null;
+function applyTimeBadge(){
+  const b=$('#timeBadge');clearInterval(tbT);const on=!!(S&&S.set.timeBadge);b.hidden=!on;
+  if(on){const f=()=>{b.textContent='🕒 '+fmtTime()};f();tbT=setInterval(f,1000)}
 }
-async function pollApp(){
-  clearTimeout(ew.timer);
-  if(!S||!S.set.eyes||!document.body.classList.contains('ready')){ew.timer=setTimeout(pollApp,3000);return}
-  let name=null;
-  try{
-    const c=new AbortController(),to=setTimeout(()=>c.abort(),1500);
-    const r=await fetch(HELPER_URL,{cache:'no-store',signal:c.signal});clearTimeout(to);
-    if(r.ok){const j=await r.json();name=String(j.app||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,40);ew.helper=true;ew.fails=0}
-  }catch{ew.fails++;if(ew.fails>=2)ew.helper=false}
-  const now=Date.now();
-  if(ew.helper&&name!==null){
-    if(name!==ew.app){ew.app=name;ew.since=now;ew.pending=!!name}
-    if(document.hasFocus())ew.pending=false;                    // you are looking at LOOI itself
-    else if(ew.pending&&name&&now-ew.since>=2500&&now-ew.lastSay>=20000&&!speaking&&!busy){ew.pending=false;sayLooking(name)}
-  }
-  updateEyesInfo();
-  ew.timer=setTimeout(pollApp,ew.helper?1500:(ew.fails>3?8000:3000));
-}
-addEventListener('blur',()=>{
-  if(!S||!S.set.eyes||ew.helper)return;clearTimeout(ew.blurT);
-  ew.blurT=setTimeout(()=>{if(S.set.eyes&&!ew.helper&&!document.hasFocus()&&Date.now()-ew.lastSay>=30000)sayLooking('')},3000);
-});
-addEventListener('focus',()=>clearTimeout(ew.blurT));
+function setSet(k,v){S.set[k]=v;saveData();$$(`[data-set="${k}"]`).forEach(el=>{if(el.type==='checkbox')el.checked=!!v;else el.value=v});applySettings()}
+$('#timeBadge').onclick=()=>{setSet('timeBadge',false);toast('Time hidden. You can turn it back on in the Play tab.',3500)};
 
 /* ===================== WAKE LOCK / FULLSCREEN / KEYBOARD ===================== */
 let wl=null;async function keepAwake(){try{if('wakeLock' in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>wl=null)}}catch{}}
@@ -944,7 +1137,7 @@ addEventListener('keydown',e=>{
   if(l==='m'){drawer.classList.contains('open')?closeDrawer():openDrawer();e.preventDefault()}
   else if(l==='f'){toggleFull();e.preventDefault()}
   else if(e.key==='Escape'){if(!$('#clock').hidden)showClock(false);else closeDrawer()}
-  else if(e.key===' '){poke();e.preventDefault()}
+  else if(e.key===' '){if(!e.repeat)poke();e.preventDefault()}
 });
 addEventListener('keyup',e=>{const k=KEYS[e.key]||KEYS[e.key.toLowerCase?.()];if(k)dirs.delete(k)});
 addEventListener('blur',()=>dirs.clear());
@@ -964,13 +1157,12 @@ $('#aWink').onclick=()=>{interact();setExp('wink',1500);setSrc('cue',-.9,.2,1500
 $('#tStart').onclick=()=>{const n=parseFloat($('#tMin').value);if(!(n>0))return toast('Enter minutes, e.g. 5');startTimer(Math.round(n*60));toast('Timer started');closeDrawer()};
 
 function applySettings(){face.style.setProperty('--ec',S.set.color);cam.classList.toggle('show',!!S.set.preview&&!!camStream);
-  document.body.classList.toggle('eyesonly',!!S.set.eyes);calcAmp(false);updateEyesInfo()}
+  document.body.classList.toggle('eyesonly',!!S.set.eyes);calcAmp(false);applyTimeBadge()}
 /* eyes-only side effects: stop listening for "Hey Looi", close the clock; resume listening when switched off */
 function applyEyes(){
   const on=!!S.set.eyes;document.body.classList.toggle('eyesonly',on);
   if(on){stopRec();showClock(false);dirs.clear();window.speechSynthesis?.cancel()}
   else if(micStream&&SR)startRec();
-  updateEyesInfo();
 }
 function bindSettings(){
   $$('[data-set]').forEach(el=>{const k=el.dataset.set;if(el.type==='checkbox')el.checked=!!S.set[k];else el.value=S.set[k];
@@ -993,18 +1185,18 @@ $('#delAcc').onclick=()=>{if(!confirm('Delete account "'+S.user+'" and all its d
 /* ===================== ENTER APP / WAKE ===================== */
 function enterApp(name){
   const users=LS.get('looi_users',{});if(!users[name]){signOut();return}
-  const d=LS.get('looi_data_'+name,{});S={user:name,set:Object.assign({},DEFAULTS,d.set||{}),hist:(d.ver>=DATA_VER&&Array.isArray(d.hist))?d.hist:[]};
-  $('#auth').hidden=true;$('#app').hidden=false;$('#wake').hidden=true;goSleep();bindSettings();applySettings();applyEyes();
+  const d=LS.get('looi_data_'+name,{});S={user:name,set:Object.assign({},DEFAULTS,d.set||{}),hist:(d.ver>=DATA_VER&&Array.isArray(d.hist))?d.hist:[],macros:Array.isArray(d.macros)?cleanMacros(d.macros):starterMacros()};
+  $('#auth').hidden=true;$('#app').hidden=false;$('#wake').hidden=true;goSleep();bindSettings();renderMacros();applySettings();applyEyes();
   requestAnimationFrame(()=>calcAmp(true));
   $('#log').innerHTML='';S.hist.slice(-12).forEach(m=>addMsg(m.role==='user'?'u':'a',m.content.replace(/\[\w+\]/g,'').trim()));
   if(S.set.tilt)setTilt(true);
-  if(!rafOn){rafOn=true;requestAnimationFrame(frame);pollApp()}
+  if(!rafOn){rafOn=true;requestAnimationFrame(frame)}
   startLoading();
 }
 $('#wakeBtn').onclick=async()=>{
   woke=true;ac();keepAwake();$('#wake').hidden=true;showHud();
   baseExp='neutral';setExp('surprised',700);sfx.boot();
-  setTimeout(()=>say(`[happy] Hello ${S.user}! I am Looi. Say Hey Looi any time.`,false),900);
+  setTimeout(()=>{if(S.set.greetOn){const first=!S.set.hinted&&!String(S.set.greet||'').trim();if(first){S.set.hinted=true;saveData()}say(greetLine(first),false,{id:'greet',cool:5000})}},900);
   await startMedia();
 };
 (function boot(){try{const n=localStorage.getItem('looi_session')||sessionStorage.getItem('looi_session');if(n&&LS.get('looi_users',{})[n])enterApp(n)}catch(e){showFatal(e.message)}})();
